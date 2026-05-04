@@ -1,0 +1,21 @@
+/vendor/
+/composer.lock
+/.phpunit.result.cache
+/node_modules/
+/docs/node_modules/
+/docs/.vitepress/cache/
+/docs/.vitepress/dist/
+
+# IDE files
+/.idea/
+/.vscode/
+
+# AI assistant/editor files
+/.agents/
+/.claude/
+/.codex/
+/.cursor/
+/.continue/
+/.windsurf/
+/skills-lock.json
+/.aider*
