@@ -11,6 +11,8 @@ Provider-neutral transactional and marketing email for Laravel 12+.
 
 MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Use normal Laravel mail when you want it. Use MailBridge when you need provider-hosted templates, marketing lists, capability checks, tested SDK pins, and provider fallback.
 
+> `v0.1.0` was an early preview. Use the latest stable release for SDK-backed provider adapters.
+
 ## Documentation
 
 Full docs: https://ashraful19.github.io/laravel-mailbridge/
@@ -101,14 +103,14 @@ MailBridge::marketing()
 
 Provider SDKs are installed only when selected, and each install command uses the exact SDK version tested by MailBridge.
 
-| Provider | Lane | Install |
-| --- | --- | --- |
-| Brevo | Transactional + marketing | `php artisan mailbridge:install brevo` |
-| MailerSend | Transactional | `php artisan mailbridge:install mailersend` |
-| Resend | Transactional | `php artisan mailbridge:install resend` |
-| Postmark | Transactional | `php artisan mailbridge:install postmark` |
-| Mailgun | Transactional | `php artisan mailbridge:install mailgun` |
-| MailerLite | Marketing | `php artisan mailbridge:install mailerlite` |
+| Provider | Lane | Current adapter support | Install |
+| --- | --- | --- | --- |
+| Brevo | Transactional + marketing | raw send, hosted templates, tags, contact subscribe | `php artisan mailbridge:install brevo` |
+| MailerSend | Transactional | raw send, hosted templates, personalization, tags | `php artisan mailbridge:install mailersend` |
+| Resend | Transactional | raw send, template payload, tags/headers | `php artisan mailbridge:install resend` |
+| Postmark | Transactional | raw send, hosted templates, tags, metadata, message streams | `php artisan mailbridge:install postmark` |
+| Mailgun | Transactional | raw send, hosted templates, tags, variables, metadata | `php artisan mailbridge:install mailgun` |
+| MailerLite | Marketing | subscriber create, group subscribe, custom fields | `php artisan mailbridge:install mailerlite` |
 
 Run health checks anytime:
 
@@ -127,24 +129,20 @@ Transactional email:
 | Provider-hosted templates | Send by config alias with `template('welcome')` or direct id with `templateId(...)`. |
 | Provider-specific template data | Use `data()` for common variables and `dataFor()` for provider overrides. |
 | Recipients | Normalize `to`, `cc`, `bcc`, `from`, and `replyTo` across providers. |
-| Attachments | Support provider attachment APIs where available. |
+| Attachments | Add files or raw data with `attach()` and `attachData()`. |
 | Tags/categories | Attach provider analytics tags where supported. |
 | Metadata/custom args | Attach safe message metadata for provider analytics and webhook correlation. |
 | Provider override | Send one message through a specific provider without changing config. |
 | Fallback control | Use `withFallback()` or `withFallback(false)` per send. |
 | Testing fake | Assert transactional sends without touching provider APIs. |
 
-Marketing email:
+Marketing email currently implemented in the common API:
 
 | Feature | Purpose |
 | --- | --- |
-| Subscriber upsert | Create or update marketing contacts. |
-| Subscriber lookup/delete | Manage contacts where provider supports it. |
+| Subscriber subscribe | Create or update contacts where the provider endpoint supports it. |
 | List/group subscribe | Subscribe contacts to configured list aliases. |
-| Unsubscribe | Remove contacts from lists or marketing audiences. |
 | Fields/attributes | Sync custom subscriber profile data. |
-| Tags/groups | Attach provider grouping/tag concepts where supported. |
-| Campaign operations | Create, update, send, schedule, and read reports where supported. |
 | Provider override | Run one marketing operation through a specific provider. |
 | Fallback control | Retry transient provider/network failures through configured fallbacks. |
 | Testing fake | Assert marketing subscriptions without provider calls. |

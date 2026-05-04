@@ -3,6 +3,7 @@
 namespace Ashraful19\LaravelMailbridge\Providers;
 
 use Ashraful19\LaravelMailbridge\Exceptions\MissingSdkException;
+use Ashraful19\LaravelMailbridge\Support\TransactionalMessageNormalizer;
 use Illuminate\Contracts\Container\Container;
 
 abstract class AbstractProvider
@@ -31,5 +32,21 @@ abstract class AbstractProvider
     protected function messageId(string $prefix): string
     {
         return $prefix . '_' . bin2hex(random_bytes(8));
+    }
+
+    protected function normalizer(): TransactionalMessageNormalizer
+    {
+        return new TransactionalMessageNormalizer($this->app);
+    }
+
+    protected function requireConfig(string $key): string
+    {
+        $value = $this->config[$key] ?? null;
+
+        if (! is_string($value) || $value === '') {
+            throw new \Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException("Provider [{$this->name}] is missing required config [{$key}].");
+        }
+
+        return $value;
     }
 }

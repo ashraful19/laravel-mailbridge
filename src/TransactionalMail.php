@@ -147,6 +147,29 @@ final class TransactionalMail
         return $this;
     }
 
+    public function attach(string $path, ?string $name = null, ?string $mime = null): self
+    {
+        $this->message->attachments[] = array_filter([
+            'path' => $path,
+            'content' => is_file($path) ? file_get_contents($path) : null,
+            'name' => $name ?? basename($path),
+            'mime' => $mime,
+        ], fn ($value) => $value !== null);
+
+        return $this;
+    }
+
+    public function attachData(string $data, string $name, ?string $mime = null): self
+    {
+        $this->message->attachments[] = array_filter([
+            'content' => $data,
+            'name' => $name,
+            'mime' => $mime,
+        ], fn ($value) => $value !== null);
+
+        return $this;
+    }
+
     public function withProviderOptions(array $options): self
     {
         $this->message->providerOptions = array_replace_recursive($this->message->providerOptions, $options);

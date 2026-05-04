@@ -19,7 +19,7 @@ features:
   - title: Provider SDKs, pinned
     details: Install only the SDKs you use, at versions tested by the package.
   - title: Transactional + marketing
-    details: Keep email sends, hosted templates, subscribers, lists, and campaigns in separate clean lanes.
+    details: Keep email sends, hosted templates, subscribers, and lists in separate clean lanes.
   - title: Fallback control
     details: Use Laravel mail failover for normal mail, and MailBridge fallback for SDK/template/marketing paths.
   - title: Testable by design
@@ -56,4 +56,4 @@ php artisan mailbridge:doctor
 | Lane | Common features |
 | --- | --- |
 | Transactional | HTML/text, Laravel Mailables, hosted templates, attachments, cc/bcc/reply-to, tags, metadata, provider override, fallback, fake assertions |
-| Marketing | subscribers, lists/groups, unsubscribe, fields, tags/groups, campaigns, reports, provider override, fallback, fake assertions |
+| Marketing | subscriber subscribe, lists/groups, fields/attributes, provider override, fallback, fake assertions |

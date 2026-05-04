@@ -36,4 +36,11 @@ final class Redactor
 
         return $context;
     }
+
+    public static function redactString(string $value): string
+    {
+        $value = preg_replace('/(api[-_ ]?key|token|authorization|bearer)\s*[:=]\s*["\']?[^"\'\s,;]+/i', '$1=[redacted]', $value) ?? $value;
+
+        return preg_replace('/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i', '[redacted-email]', $value) ?? $value;
+    }
 }

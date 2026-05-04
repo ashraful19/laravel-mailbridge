@@ -68,6 +68,24 @@ final class TransactionalMailTest extends TestCase
         $this->assertSame(['name' => 'Ashraful'], $this->lastArrayMessage()->data);
     }
 
+    public function test_it_accepts_raw_data_attachments(): void
+    {
+        Mailbridge::fake();
+
+        Mailbridge::transactional()
+            ->to('a@example.com')
+            ->subject('Report')
+            ->text('Attached')
+            ->attachData('report-body', 'report.txt', 'text/plain')
+            ->send();
+
+        $this->assertSame([
+            'content' => 'report-body',
+            'name' => 'report.txt',
+            'mime' => 'text/plain',
+        ], $this->lastArrayMessage()->attachments[0]);
+    }
+
     public function test_unused_provider_specific_data_is_ignored(): void
     {
         Mailbridge::fake();
