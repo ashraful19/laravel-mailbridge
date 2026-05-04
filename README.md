@@ -1,5 +1,7 @@
 # Laravel MailBridge
 
+[![Tests](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/tests.yml)
+[![Docs](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/docs.yml)
 [![Latest Version](https://img.shields.io/packagist/v/ashraful19/laravel-mailbridge.svg)](https://packagist.org/packages/ashraful19/laravel-mailbridge)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.2-777bb4.svg)](composer.json)
 [![Laravel Version](https://img.shields.io/badge/laravel-%5E12%7C%5E13-ff2d20.svg)](composer.json)

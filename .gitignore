@@ -7,7 +7,6 @@
 /docs/.vitepress/dist/
 
 # IDE files
-/.github/
 /.idea/
 /.vscode/
 
