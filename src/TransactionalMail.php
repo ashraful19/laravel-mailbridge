@@ -118,6 +118,21 @@ final class TransactionalMail
         return $this;
     }
 
+    public function dataFor(string $provider, array $data): self
+    {
+        $this->message->providerData[$provider] = array_replace_recursive(
+            $this->message->providerData[$provider] ?? [],
+            $data,
+        );
+
+        return $this;
+    }
+
+    public function templateDataFor(string $provider, array $data): self
+    {
+        return $this->dataFor($provider, $data);
+    }
+
     public function tag(string $tag): self
     {
         $this->message->tags[] = $tag;
@@ -162,6 +177,10 @@ final class TransactionalMail
 
         if (($this->message->template !== null || $this->message->templateId !== null) && $this->message->mailable !== null) {
             throw new MailbridgeValidationException('Template send cannot also send a Laravel Mailable.');
+        }
+
+        foreach (array_keys($this->message->providerData) as $provider) {
+            $this->manager->providerConfig($provider);
         }
     }
 }

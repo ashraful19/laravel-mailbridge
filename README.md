@@ -64,6 +64,18 @@ MailBridge::transactional()
     ->send();
 ```
 
+Use provider-specific template data when providers expect different variable names:
+
+```php
+MailBridge::transactional()
+    ->template('welcome')
+    ->to($user->email)
+    ->data(['name' => $user->name])
+    ->dataFor('brevo', ['FIRSTNAME' => $user->name])
+    ->dataFor('postmark', ['name' => $user->name])
+    ->send();
+```
+
 Send through one provider for this request:
 
 ```php
@@ -113,6 +125,7 @@ Transactional email:
 | Raw HTML/text send | Send simple app-rendered messages without a Laravel `Mailable`. |
 | Laravel `Mailable` send | Keep existing Laravel mail classes and route them through MailBridge. |
 | Provider-hosted templates | Send by config alias with `template('welcome')` or direct id with `templateId(...)`. |
+| Provider-specific template data | Use `data()` for common variables and `dataFor()` for provider overrides. |
 | Recipients | Normalize `to`, `cc`, `bcc`, `from`, and `replyTo` across providers. |
 | Attachments | Support provider attachment APIs where available. |
 | Tags/categories | Attach provider analytics tags where supported. |

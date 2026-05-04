@@ -100,6 +100,7 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
 
             $providerMessage = clone $message;
             $this->resolveTemplateAlias($providerMessage, $name);
+            $this->resolveProviderTemplateData($providerMessage, $name);
 
             try {
                 return $adapter->send($providerMessage);
@@ -182,6 +183,14 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
         }
 
         $message->templateId = $templateId;
+    }
+
+    private function resolveProviderTemplateData(TransactionalMessage $message, string $provider): void
+    {
+        $message->data = array_replace_recursive(
+            $message->data,
+            $message->providerData[$provider] ?? [],
+        );
     }
 
     private function resolveListAlias(string $list, string $provider): string

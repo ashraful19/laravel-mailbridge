@@ -10,6 +10,7 @@ MailBridge has two lanes: transactional email and marketing email. Each provider
 | Laravel Mailables | `send(new WelcomeMail($user))` | Keeps existing Laravel mail classes usable. |
 | Hosted templates | `template('welcome')` | Resolves provider-specific ids from `config/mailbridge.php`. |
 | Direct template id | `templateId('...')` | Bypasses config mapping for one send. |
+| Provider-specific data | `dataFor('brevo', [...])` | Provider data overrides common `data()` values. |
 | Recipients | `to()`, `cc()`, `bcc()` | Normalized address objects. |
 | Sender controls | `from()`, `replyTo()` | Falls back to app mail config where needed. |
 | Tags/categories | `tag()` | Provider analytics labels where supported. |
