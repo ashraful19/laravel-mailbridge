@@ -1,12 +1,30 @@
 # Laravel MailBridge
 
-[![Tests](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/tests.yml/badge.svg)](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/tests.yml)
-[![Docs](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/docs.yml/badge.svg)](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/docs.yml)
+[![Latest Version](https://img.shields.io/packagist/v/ashraful19/laravel-mailbridge.svg)](https://packagist.org/packages/ashraful19/laravel-mailbridge)
+[![PHP Version](https://img.shields.io/badge/php-%5E8.2-777bb4.svg)](composer.json)
+[![Laravel Version](https://img.shields.io/badge/laravel-%5E12%7C%5E13-ff2d20.svg)](composer.json)
 [![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE.md)
 
 Provider-neutral transactional and marketing email for Laravel 12+.
 
 MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Use normal Laravel mail when you want it. Use MailBridge when you need provider-hosted templates, marketing lists, capability checks, tested SDK pins, and provider fallback.
+
+## Documentation
+
+Full docs: https://ashraful19.github.io/laravel-mailbridge/
+
+Source docs:
+
+- [Installation](docs/guide/installation.md)
+- [Provider install](docs/guide/provider-install.md)
+- [Normal Laravel mail](docs/guide/laravel-mail.md)
+- [Transactional email](docs/guide/transactional.md)
+- [Hosted templates](docs/guide/templates.md)
+- [Marketing email](docs/guide/marketing.md)
+- [Fallback](docs/guide/fallback.md)
+- [Testing](docs/guide/testing.md)
+- [Security](docs/guide/security.md)
+- [Capabilities](docs/guide/capabilities.md)
 
 ## Quick Start
 
@@ -127,23 +145,6 @@ Marketing email:
 | Switch provider per send | Pass provider name: `MailBridge::transactional('postmark')`. |
 | Control fallback | Use `withFallback()` or `withFallback(false)` per send. |
 | Test safely | Use `MailBridge::fake()` and assertions. |
-
-## Documentation
-
-Full docs: https://ashraful19.github.io/laravel-mailbridge/
-
-Source docs:
-
-- [Installation](docs/guide/installation.md)
-- [Provider install](docs/guide/provider-install.md)
-- [Normal Laravel mail](docs/guide/laravel-mail.md)
-- [Transactional email](docs/guide/transactional.md)
-- [Hosted templates](docs/guide/templates.md)
-- [Marketing email](docs/guide/marketing.md)
-- [Fallback](docs/guide/fallback.md)
-- [Testing](docs/guide/testing.md)
-- [Security](docs/guide/security.md)
-- [Capabilities](docs/guide/capabilities.md)
 
 ## License
 
