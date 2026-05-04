@@ -1,0 +1,9 @@
+/docs export-ignore
+/tests export-ignore
+/.github export-ignore
+/.agents export-ignore
+/vendor export-ignore
+/phpunit.xml.dist export-ignore
+/docs/package.json export-ignore
+/.phpunit.result.cache export-ignore
+/skills-lock.json export-ignore

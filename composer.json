@@ -1,0 +1,69 @@
+{
+    "name": "ashraful19/laravel-mailbridge",
+    "description": "Provider-neutral transactional and marketing email bridge for Laravel.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "email",
+        "mail",
+        "transactional",
+        "marketing",
+        "brevo",
+        "mailersend",
+        "resend",
+        "postmark",
+        "mailgun",
+        "mailerlite"
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/console": "^12.0|^13.0",
+        "illuminate/contracts": "^12.0|^13.0",
+        "illuminate/mail": "^12.0|^13.0",
+        "illuminate/process": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^11.0|^12.0"
+    },
+    "suggest": {
+        "getbrevo/brevo-php": "Install with `php artisan mailbridge:install brevo` for Brevo support.",
+        "mailersend/laravel-driver": "Install with `php artisan mailbridge:install mailersend` for MailerSend support.",
+        "resend/resend-php": "Install with `php artisan mailbridge:install resend` for Resend support.",
+        "wildbit/postmark-php": "Install with `php artisan mailbridge:install postmark` for Postmark support.",
+        "mailgun/mailgun-php": "Install with `php artisan mailbridge:install mailgun` for Mailgun support.",
+        "mailerlite/mailerlite-php": "Install with `php artisan mailbridge:install mailerlite` for MailerLite support."
+    },
+    "autoload": {
+        "psr-4": {
+            "Ashraful19\\LaravelMailbridge\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ashraful19\\LaravelMailbridge\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ashraful19\\LaravelMailbridge\\MailbridgeServiceProvider"
+            ],
+            "aliases": {
+                "MailBridge": "Ashraful19\\LaravelMailbridge\\Facades\\Mailbridge",
+                "Mailbridge": "Ashraful19\\LaravelMailbridge\\Facades\\Mailbridge"
+            }
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "php -l src/MailbridgeManager.php"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
