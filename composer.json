@@ -25,8 +25,16 @@
         "illuminate/support": "^12.0|^13.0"
     },
     "require-dev": {
+        "getbrevo/brevo-php": "2.0.14",
+        "mailerlite/mailerlite-php": "1.0.5",
+        "mailersend/laravel-driver": "3.1.0",
+        "mailgun/mailgun-php": "4.4.0",
+        "nyholm/psr7": "1.8.2",
         "orchestra/testbench": "^10.0|^11.0",
-        "phpunit/phpunit": "^11.0|^12.0"
+        "phpunit/phpunit": "^11.0|^12.0",
+        "resend/resend-php": "1.1.0",
+        "symfony/http-client": "7.4.8",
+        "wildbit/postmark-php": "7.0.0"
     },
     "suggest": {
         "getbrevo/brevo-php": "Install with `php artisan mailbridge:install brevo` for Brevo support.",

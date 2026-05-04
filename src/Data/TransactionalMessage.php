@@ -33,6 +33,9 @@ final class TransactionalMessage
 
     public array $data = [];
 
+    /** @var array<string, array> */
+    public array $providerData = [];
+
     public array $attachments = [];
 
     public array $tags = [];

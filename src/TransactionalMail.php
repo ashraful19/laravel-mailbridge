@@ -118,6 +118,21 @@ final class TransactionalMail
         return $this;
     }
 
+    public function dataFor(string $provider, array $data): self
+    {
+        $this->message->providerData[$provider] = array_replace_recursive(
+            $this->message->providerData[$provider] ?? [],
+            $data,
+        );
+
+        return $this;
+    }
+
+    public function templateDataFor(string $provider, array $data): self
+    {
+        return $this->dataFor($provider, $data);
+    }
+
     public function tag(string $tag): self
     {
         $this->message->tags[] = $tag;
@@ -128,6 +143,29 @@ final class TransactionalMail
     public function metadata(string $key, mixed $value): self
     {
         $this->message->metadata[$key] = $value;
+
+        return $this;
+    }
+
+    public function attach(string $path, ?string $name = null, ?string $mime = null): self
+    {
+        $this->message->attachments[] = array_filter([
+            'path' => $path,
+            'content' => is_file($path) ? file_get_contents($path) : null,
+            'name' => $name ?? basename($path),
+            'mime' => $mime,
+        ], fn ($value) => $value !== null);
+
+        return $this;
+    }
+
+    public function attachData(string $data, string $name, ?string $mime = null): self
+    {
+        $this->message->attachments[] = array_filter([
+            'content' => $data,
+            'name' => $name,
+            'mime' => $mime,
+        ], fn ($value) => $value !== null);
 
         return $this;
     }
@@ -162,6 +200,10 @@ final class TransactionalMail
 
         if (($this->message->template !== null || $this->message->templateId !== null) && $this->message->mailable !== null) {
             throw new MailbridgeValidationException('Template send cannot also send a Laravel Mailable.');
+        }
+
+        foreach (array_keys($this->message->providerData) as $provider) {
+            $this->manager->providerConfig($provider);
         }
     }
 }

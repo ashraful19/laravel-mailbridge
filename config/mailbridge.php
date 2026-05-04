@@ -53,7 +53,6 @@ return [
                 'transactional.tags',
                 'marketing.contacts',
                 'marketing.lists',
-                'marketing.campaigns',
                 'webhooks.transactional',
                 'webhooks.marketing',
             ],
@@ -72,7 +71,7 @@ return [
             'version' => '1.1.0',
             'install' => 'composer require resend/resend-php:1.1.0',
             'api_key' => env('RESEND_API_KEY'),
-            'capabilities' => ['transactional.raw', 'transactional.batch', 'transactional.tags'],
+            'capabilities' => ['transactional.raw', 'transactional.templates', 'transactional.tags'],
         ],
         'postmark' => [
             'driver' => 'postmark',
@@ -92,7 +91,7 @@ return [
             'driver' => 'mailgun',
             'sdk' => 'mailgun/mailgun-php',
             'version' => '4.4.0',
-            'install' => 'composer require mailgun/mailgun-php:4.4.0 symfony/http-client nyholm/psr7',
+            'install' => 'composer require mailgun/mailgun-php:4.4.0 symfony/http-client:7.4.8 nyholm/psr7:1.8.2',
             'api_key' => env('MAILGUN_API_KEY'),
             'domain' => env('MAILGUN_DOMAIN'),
             'capabilities' => [
@@ -113,7 +112,6 @@ return [
                 'marketing.subscribers',
                 'marketing.groups',
                 'marketing.fields',
-                'marketing.campaigns',
                 'webhooks.marketing',
             ],
         ],

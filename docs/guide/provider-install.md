@@ -1,6 +1,6 @@
 # Provider Install
 
-Provider SDKs are optional and installed with exact tested versions.
+Provider SDKs are optional and installed with exact tested versions. MailBridge tests these SDK pins in development, but they stay out of production dependencies until a provider is installed.
 
 | Provider | Command |
 | --- | --- |
@@ -24,3 +24,9 @@ php artisan mailbridge:install
 ```
 
 The interactive command shows a terminal checklist and installs all selected provider SDKs.
+
+Mailgun also installs exact HTTP client support packages:
+
+```bash
+composer require mailgun/mailgun-php:4.4.0 symfony/http-client:7.4.8 nyholm/psr7:1.8.2
+```

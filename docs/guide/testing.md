@@ -4,4 +4,4 @@
 MailBridge::fake();
 ```
 
-Fake assertions are planned around transactional sends and marketing subscriptions.
+Fake assertions cover transactional sends and marketing subscriptions.
