@@ -41,6 +41,19 @@ return [
             'install' => null,
             'capabilities' => ['transactional.raw', 'transactional.templates', 'marketing.subscribers', 'marketing.campaigns'],
         ],
+        'sendgrid' => [
+            'driver' => 'sendgrid',
+            'sdk' => 'sendgrid/sendgrid',
+            'version' => '8.1.11',
+            'install' => 'composer require sendgrid/sendgrid:8.1.11',
+            'api_key' => env('SENDGRID_API_KEY'),
+            'capabilities' => [
+                'transactional.raw',
+                'transactional.templates',
+                'transactional.tags',
+                'transactional.metadata',
+            ],
+        ],
         'brevo' => [
             'driver' => 'brevo',
             'sdk' => 'getbrevo/brevo-php',

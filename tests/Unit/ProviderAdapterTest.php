@@ -18,6 +18,7 @@ use Ashraful19\LaravelMailbridge\Providers\MailersendProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailgunProvider;
 use Ashraful19\LaravelMailbridge\Providers\PostmarkProvider;
 use Ashraful19\LaravelMailbridge\Providers\ResendProvider;
+use Ashraful19\LaravelMailbridge\Providers\SendgridProvider;
 use Ashraful19\LaravelMailbridge\Tests\TestCase;
 use Illuminate\Mail\Mailable;
 use ReflectionProperty;
@@ -71,6 +72,23 @@ final class ProviderAdapterTest extends TestCase
 
         $this->assertSame('welcome', $payload['template']);
         $this->assertSame('{"name":"Ash","campaign":"signup"}', $payload['h:X-Mailgun-Variables']);
+    }
+
+    public function test_sendgrid_maps_template_payload(): void
+    {
+        $message = $this->message();
+        $message->templateId = 'd-welcome';
+        $message->data = ['name' => 'Ash'];
+        $message->attachments[] = ['content' => 'invoice-bytes', 'name' => 'invoice.txt', 'mime' => 'text/plain'];
+
+        $payload = json_decode(json_encode((new SendgridProvider('sendgrid', ['api_key' => 'key'], $this->app))->payload($message), JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+
+        $this->assertSame('d-welcome', $payload['template_id']);
+        $this->assertSame(['name' => 'Ash'], $payload['personalizations'][0]['dynamic_template_data']);
+        $this->assertSame('welcome', $payload['categories'][0]);
+        $this->assertSame('signup', $payload['personalizations'][0]['custom_args']['campaign']);
+        $this->assertSame(base64_encode('invoice-bytes'), $payload['attachments'][0]['content']);
+        $this->assertSame('invoice.txt', $payload['attachments'][0]['filename']);
     }
 
     public function test_mailersend_maps_template_personalization(): void

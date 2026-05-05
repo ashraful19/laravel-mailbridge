@@ -23,6 +23,7 @@ Use this page to decide which provider should handle each lane and which parts o
 
 | Provider | Transactional | Hosted Templates | Provider Data | Marketing | Campaigns |
 | --- | --- | --- | --- | --- | --- |
+| SendGrid | Yes | Yes | Yes | No | No |
 | Brevo | Yes | Yes | Yes | Subscribers + lists | Create/send/schedule/get/delete |
 | MailerSend | Yes | Yes | Yes | No | No |
 | Resend | Yes | Partial | Yes | No | No |

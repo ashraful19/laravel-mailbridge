@@ -9,6 +9,7 @@
         "mail",
         "transactional",
         "marketing",
+        "sendgrid",
         "brevo",
         "mailersend",
         "resend",
@@ -33,10 +34,12 @@
         "orchestra/testbench": "^10.0|^11.0",
         "phpunit/phpunit": "^11.0|^12.0",
         "resend/resend-php": "1.1.0",
+        "sendgrid/sendgrid": "8.1.11",
         "symfony/http-client": "7.4.8",
         "wildbit/postmark-php": "7.0.0"
     },
     "suggest": {
+        "sendgrid/sendgrid": "Install with `php artisan mailbridge:install sendgrid` for SendGrid support.",
         "getbrevo/brevo-php": "Install with `php artisan mailbridge:install brevo` for Brevo support.",
         "mailersend/laravel-driver": "Install with `php artisan mailbridge:install mailersend` for MailerSend support.",
         "resend/resend-php": "Install with `php artisan mailbridge:install resend` for Resend support.",

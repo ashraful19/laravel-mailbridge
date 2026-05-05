@@ -25,6 +25,7 @@ use Ashraful19\LaravelMailbridge\Providers\MailersendProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailgunProvider;
 use Ashraful19\LaravelMailbridge\Providers\PostmarkProvider;
 use Ashraful19\LaravelMailbridge\Providers\ResendProvider;
+use Ashraful19\LaravelMailbridge\Providers\SendgridProvider;
 use Illuminate\Contracts\Container\Container;
 use PHPUnit\Framework\Assert;
 
@@ -250,6 +251,7 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
         return match ($config['driver'] ?? $provider) {
             'array' => new ArrayProvider($provider, $config, $this->app),
             'log' => new LogProvider($provider, $config, $this->app),
+            'sendgrid' => new SendgridProvider($provider, $config, $this->app),
             'brevo' => new BrevoProvider($provider, $config, $this->app),
             'mailersend' => new MailersendProvider($provider, $config, $this->app),
             'resend' => new ResendProvider($provider, $config, $this->app),

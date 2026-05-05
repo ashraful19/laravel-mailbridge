@@ -78,6 +78,12 @@ MailBridge::transactional('postmark')
     ->send();
 ```
 
+## Provider Notes
+
+| Provider | Notes |
+| --- | --- |
+| SendGrid | Uses dynamic templates, categories, and custom args through `sendgrid/sendgrid`. |
+
 ```php
 MailBridge::transactional('postmark')
     ->withFallback()

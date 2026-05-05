@@ -11,6 +11,7 @@ final class ProviderMetadataTest extends TestCase
     {
         $providers = app(MailbridgeManager::class)->providerMetadata();
 
+        $this->assertSame('composer require sendgrid/sendgrid:8.1.11', $providers['sendgrid']['install']);
         $this->assertSame('composer require getbrevo/brevo-php:2.0.14', $providers['brevo']['install']);
         $this->assertSame('composer require mailersend/laravel-driver:3.1.0', $providers['mailersend']['install']);
         $this->assertSame('composer require resend/resend-php:1.1.0', $providers['resend']['install']);

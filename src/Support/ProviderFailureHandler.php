@@ -10,6 +10,10 @@ final class ProviderFailureHandler
 {
     public static function throw(string $provider, string $operation, Throwable $exception): never
     {
+        if ($exception instanceof ProviderTransientException || $exception instanceof MailbridgeException) {
+            throw $exception;
+        }
+
         $status = self::statusCode($exception);
         $context = [
             'provider' => $provider,

@@ -9,7 +9,7 @@
 
 Provider-neutral transactional and marketing email for Laravel 12+.
 
-MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Your app uses the same MailBridge methods while Brevo, MailerSend, Resend, Postmark, Mailgun, and MailerLite each run through their official SDKs internally.
+MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Your app uses the same MailBridge methods while SendGrid, Brevo, MailerSend, Resend, Postmark, Mailgun, and MailerLite each run through their official SDKs internally.
 
 ## Documentation
 
@@ -46,6 +46,7 @@ MAIL_FROM_NAME="Example App"
 MAILBRIDGE_TRANSACTIONAL=brevo
 MAILBRIDGE_MARKETING=mailerlite
 BREVO_API_KEY=
+SENDGRID_API_KEY=
 MAILERLITE_API_KEY=
 ```
 
@@ -134,6 +135,7 @@ Provider SDKs are installed only when selected, and each install command uses th
 
 | Provider | Lane | Current adapter support | Install |
 | --- | --- | --- | --- |
+| SendGrid | Transactional | raw send, hosted templates, categories, custom args | `php artisan mailbridge:install sendgrid` |
 | Brevo | Transactional + marketing | raw send, hosted templates, tags, subscribers, campaigns | `php artisan mailbridge:install brevo` |
 | MailerSend | Transactional | raw send, hosted templates, personalization, tags | `php artisan mailbridge:install mailersend` |
 | Resend | Transactional | raw send, template payload, tags/headers | `php artisan mailbridge:install resend` |

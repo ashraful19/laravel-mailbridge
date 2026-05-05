@@ -21,7 +21,7 @@ features:
   - title: Transactional + marketing
     details: Keep email sends, hosted templates, subscribers, and lists in separate clean lanes.
   - title: Template data per provider
-    details: Use common template data once, then override only the variables that differ for Brevo, Postmark, Mailgun, or another provider.
+    details: Use common template data once, then override only the variables that differ for SendGrid, Brevo, Postmark, Mailgun, or another provider.
   - title: Fallback control
     details: Retry transient SDK, template, and marketing provider failures through configured fallback providers.
   - title: Testable by design
@@ -60,6 +60,8 @@ Plain Laravel `Mail::send()` remains untouched for apps that still use it.
 php artisan mailbridge:install
 php artisan mailbridge:doctor
 ```
+
+Current SDK-backed providers include SendGrid, Brevo, MailerSend, Resend, Postmark, Mailgun, and MailerLite.
 
 ## Feature coverage
 
