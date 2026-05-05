@@ -19,6 +19,7 @@ use Ashraful19\LaravelMailbridge\Providers\MailgunProvider;
 use Ashraful19\LaravelMailbridge\Providers\PostmarkProvider;
 use Ashraful19\LaravelMailbridge\Providers\ResendProvider;
 use Ashraful19\LaravelMailbridge\Providers\SendgridProvider;
+use Ashraful19\LaravelMailbridge\Providers\SesProvider;
 use Ashraful19\LaravelMailbridge\Tests\TestCase;
 use Illuminate\Mail\Mailable;
 use ReflectionProperty;
@@ -89,6 +90,21 @@ final class ProviderAdapterTest extends TestCase
         $this->assertSame('signup', $payload['personalizations'][0]['custom_args']['campaign']);
         $this->assertSame(base64_encode('invoice-bytes'), $payload['attachments'][0]['content']);
         $this->assertSame('invoice.txt', $payload['attachments'][0]['filename']);
+    }
+
+    public function test_ses_maps_template_payload(): void
+    {
+        $message = $this->message();
+        $message->templateId = 'welcome';
+        $message->data = ['name' => 'Ash'];
+
+        $payload = (new SesProvider('ses', ['key' => 'key', 'secret' => 'secret', 'region' => 'us-east-1'], $this->app))->templatePayload($message);
+
+        $this->assertSame('Sender <sender@example.com>', $payload['Source']);
+        $this->assertSame(['A <a@example.com>'], $payload['Destination']['ToAddresses']);
+        $this->assertSame('welcome', $payload['Template']);
+        $this->assertSame('{"name":"Ash"}', $payload['TemplateData']);
+        $this->assertSame(['Name' => 'tag', 'Value' => 'welcome'], $payload['Tags'][0]);
     }
 
     public function test_mailersend_maps_template_personalization(): void

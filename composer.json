@@ -10,6 +10,10 @@
         "transactional",
         "marketing",
         "sendgrid",
+        "ses",
+        "amazon-ses",
+        "aws-ses",
+        "aws",
         "brevo",
         "mailersend",
         "resend",
@@ -26,6 +30,7 @@
         "illuminate/support": "^12.0|^13.0"
     },
     "require-dev": {
+        "aws/aws-sdk-php": "3.379.0",
         "getbrevo/brevo-php": "2.0.14",
         "mailerlite/mailerlite-php": "1.0.5",
         "mailersend/laravel-driver": "3.1.0",
@@ -40,6 +45,7 @@
     },
     "suggest": {
         "sendgrid/sendgrid": "Install with `php artisan mailbridge:install sendgrid` for SendGrid support.",
+        "aws/aws-sdk-php": "Install with `php artisan mailbridge:install ses` for Amazon SES support.",
         "getbrevo/brevo-php": "Install with `php artisan mailbridge:install brevo` for Brevo support.",
         "mailersend/laravel-driver": "Install with `php artisan mailbridge:install mailersend` for MailerSend support.",
         "resend/resend-php": "Install with `php artisan mailbridge:install resend` for Resend support.",

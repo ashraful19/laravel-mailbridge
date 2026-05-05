@@ -54,6 +54,21 @@ return [
                 'transactional.metadata',
             ],
         ],
+        'ses' => [
+            'driver' => 'ses',
+            'sdk' => 'aws/aws-sdk-php',
+            'version' => '3.379.0',
+            'install' => 'composer require aws/aws-sdk-php:3.379.0',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'capabilities' => [
+                'transactional.raw',
+                'transactional.templates',
+                'transactional.tags',
+                'transactional.metadata',
+            ],
+        ],
         'brevo' => [
             'driver' => 'brevo',
             'sdk' => 'getbrevo/brevo-php',

@@ -5,6 +5,7 @@ Provider SDKs are optional and installed with exact tested versions. MailBridge 
 | Provider | Command |
 | --- | --- |
 | SendGrid | `php artisan mailbridge:install sendgrid` |
+| Amazon SES | `php artisan mailbridge:install ses` |
 | Brevo | `php artisan mailbridge:install brevo` |
 | MailerSend | `php artisan mailbridge:install mailersend` |
 | Resend | `php artisan mailbridge:install resend` |
@@ -37,3 +38,4 @@ Exact SDK pins used by the installer:
 | Provider | Composer package |
 | --- | --- |
 | SendGrid | `sendgrid/sendgrid:8.1.11` |
+| Amazon SES | `aws/aws-sdk-php:3.379.0` |
