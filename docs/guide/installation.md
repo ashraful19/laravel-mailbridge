@@ -53,6 +53,7 @@ Add the API keys for the providers you installed:
 ```dotenv
 BREVO_API_KEY=
 SENDGRID_API_KEY=
+SENDGRID_MARKETING_SENDER_ID=
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 AWS_DEFAULT_REGION=us-east-1
@@ -93,6 +94,7 @@ Provider-hosted templates and marketing lists usually have different ids per pro
 'lists' => [
     'signup' => [
         'brevo' => 456,
+        'sendgrid' => 123,
         'mailchimp' => 'audience-id',
         'kit' => 'tag:123',
         'mailerlite' => 'group-id',

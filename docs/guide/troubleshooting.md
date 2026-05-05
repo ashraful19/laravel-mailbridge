@@ -12,7 +12,7 @@ It checks missing SDKs, wrong SDK versions, missing API keys, missing sender con
 
 | Provider | Check |
 | --- | --- |
-| SendGrid | `SENDGRID_API_KEY` exists; sender authentication/domain authentication is complete. |
+| SendGrid | `SENDGRID_API_KEY` exists; sender authentication/domain authentication is complete. Marketing campaigns also need `SENDGRID_MARKETING_SENDER_ID` or `Campaign::option('sender_id', ...)`. |
 | Amazon SES | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_DEFAULT_REGION` exist; sender identity is verified in the same SES region. |
 | Postmark | `POSTMARK_SERVER_TOKEN` exists and sender signature/domain is verified. |
 | Brevo | `BREVO_API_KEY` exists and transactional sender is verified. |
@@ -45,6 +45,7 @@ If `list('signup')` fails for marketing providers, add list/group ids:
 'lists' => [
     'signup' => [
         'brevo' => 456,
+        'sendgrid' => 123,
         'mailchimp' => 'audience-id',
         'kit' => 'tag:123',
         'mailerlite' => 'group-id',

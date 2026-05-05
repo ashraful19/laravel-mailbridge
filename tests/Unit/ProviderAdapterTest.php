@@ -95,6 +95,55 @@ final class ProviderAdapterTest extends TestCase
         $this->assertSame('invoice.txt', $payload['attachments'][0]['filename']);
     }
 
+    public function test_sendgrid_maps_marketing_payloads(): void
+    {
+        $provider = new SendgridProvider('sendgrid', ['api_key' => 'key', 'marketing_sender_id' => '42'], $this->app);
+
+        $subscriber = $provider->subscriberPayload(Subscriber::make('a@example.com')->name('Ash Islam')->field('company', 'Converlo'));
+        $campaign = $provider->campaignPayload(
+            Campaign::make('Launch')
+                ->subject('Hello')
+                ->html('<p>Hello</p>')
+                ->list(123)
+                ->option('categories', ['launch'])
+        );
+
+        $this->assertSame('a@example.com', $subscriber['email']);
+        $this->assertSame('Ash', $subscriber['first_name']);
+        $this->assertSame('Islam', $subscriber['last_name']);
+        $this->assertSame('Converlo', $subscriber['company']);
+        $this->assertSame('42', $campaign['sender_id']);
+        $this->assertSame([123], $campaign['list_ids']);
+        $this->assertSame(['launch'], $campaign['categories']);
+    }
+
+    public function test_sendgrid_uses_official_marketing_client_paths(): void
+    {
+        $client = new FakeSendgridSdk();
+        $provider = new SendgridProvider('sendgrid', ['api_key' => 'key', 'marketing_sender_id' => '42'], $this->app, $client);
+
+        $provider->subscribe('123', Subscriber::make('a@example.com')->name('Ash Islam'));
+        $provider->unsubscribe('123', 'a@example.com');
+        $provider->getSubscriber('a@example.com');
+        $provider->deleteSubscriber('a@example.com');
+        $created = $provider->createCampaign(Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->list(123));
+        $provider->scheduleCampaign(456, '2026-06-01 10:00:00');
+        $provider->sendCampaign(456);
+        $provider->getCampaign(456);
+        $provider->deleteCampaign(456);
+
+        $this->assertSame('sg_campaign_123', $created->metadata['campaign_id']);
+        $this->assertContains('/contactdb/recipients', $client->client->paths());
+        $this->assertContains('/contactdb/lists/123/recipients', $client->client->paths());
+        $this->assertContains('/contactdb/lists/123/recipients/recipient_123', $client->client->paths());
+        $this->assertContains('/contactdb/recipients/search', $client->client->paths());
+        $this->assertContains('/contactdb/recipients/recipient_123', $client->client->paths());
+        $this->assertContains('/campaigns', $client->client->paths());
+        $this->assertContains('/campaigns/456/schedules', $client->client->paths());
+        $this->assertContains('/campaigns/456/schedules/now', $client->client->paths());
+        $this->assertContains('/campaigns/456', $client->client->paths());
+    }
+
     public function test_ses_maps_template_payload(): void
     {
         $message = $this->message();
@@ -331,6 +380,97 @@ final class FakeResendEmails
         return new class {
             public string $id = 'resend_123';
         };
+    }
+}
+
+final class FakeSendgridSdk
+{
+    public FakeSendgridClient $client;
+
+    public function __construct()
+    {
+        $this->client = new FakeSendgridClient();
+    }
+}
+
+final class FakeSendgridClient
+{
+    public array $requests = [];
+
+    public function __call(string $name, array $arguments): FakeSendgridEndpoint
+    {
+        return (new FakeSendgridEndpoint($this))->__call($name, $arguments);
+    }
+
+    public function paths(): array
+    {
+        return array_column($this->requests, 'path');
+    }
+}
+
+final class FakeSendgridEndpoint
+{
+    public function __construct(
+        private readonly FakeSendgridClient $client,
+        private readonly array $segments = [],
+    ) {}
+
+    public function __call(string $name, array $arguments): self
+    {
+        return new self($this->client, [...$this->segments, $name]);
+    }
+
+    public function _(string|int $id): self
+    {
+        return new self($this->client, [...$this->segments, (string) $id]);
+    }
+
+    public function post(mixed $body = null, mixed $query = null): FakeSendgridResponse
+    {
+        return $this->record('POST', $body, $query);
+    }
+
+    public function get(mixed $body = null, mixed $query = null): FakeSendgridResponse
+    {
+        return $this->record('GET', $body, $query);
+    }
+
+    public function delete(mixed $body = null, mixed $query = null): FakeSendgridResponse
+    {
+        return $this->record('DELETE', $body, $query);
+    }
+
+    private function record(string $method, mixed $body, mixed $query): FakeSendgridResponse
+    {
+        $path = '/' . implode('/', $this->segments);
+        $this->client->requests[] = compact('method', 'path', 'body', 'query');
+
+        return match ([$method, $path]) {
+            ['POST', '/contactdb/recipients'] => new FakeSendgridResponse(['persisted_recipients' => ['recipient_123']]),
+            ['GET', '/contactdb/recipients/search'] => new FakeSendgridResponse(['recipients' => [['id' => 'recipient_123', 'email' => 'a@example.com']]]),
+            ['POST', '/campaigns'] => new FakeSendgridResponse(['id' => 'sg_campaign_123']),
+            default => new FakeSendgridResponse([]),
+        };
+    }
+}
+
+final class FakeSendgridResponse
+{
+    public function __construct(private readonly array $body, private readonly int $status = 202) {}
+
+    public function statusCode(): int
+    {
+        return $this->status;
+    }
+
+    public function body(): string
+    {
+        return json_encode($this->body, JSON_THROW_ON_ERROR);
+    }
+
+    public function headers(bool $assoc = false): array
+    {
+        return $assoc ? ['X-Message-Id' => 'sg_123'] : [];
     }
 }
 

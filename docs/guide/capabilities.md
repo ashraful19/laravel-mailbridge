@@ -23,7 +23,7 @@ Use this page to decide which provider should handle each lane and which parts o
 
 | Provider | Transactional | Hosted Templates | Provider Data | Marketing | Campaigns |
 | --- | --- | --- | --- | --- | --- |
-| SendGrid | Yes | Yes | Yes | No | No |
+| SendGrid | Yes | Yes | Yes | Contacts + lists | Create/send/schedule/get/delete |
 | Amazon SES | Yes | Yes | Yes | No | No |
 | Brevo | Yes | Yes | Yes | Subscribers + lists | Create/send/schedule/get/delete |
 | MailerSend | Yes | Yes | Yes | No | No |
@@ -108,6 +108,7 @@ Provider-specific data wins on key conflicts. Data for unused providers is ignor
 
 | Provider | Mapping detail |
 | --- | --- |
+| SendGrid | Marketing lists map to ContactDB list ids. Campaign creation needs `SENDGRID_MARKETING_SENDER_ID` or `Campaign::option('sender_id', ...)`. |
 | Mailchimp | MailBridge lists map to Mailchimp audiences. Transactional sends use Mailchimp Transactional, which is separate from the Marketing product. |
 | Kit | MailBridge lists map to Kit `tag:<id>`, `form:<id>`, or `sequence:<id>`. Campaigns map to Kit broadcasts. `deleteSubscriber()` is unsupported because Kit exposes unsubscribe, not hard delete, through the SDK. |
 

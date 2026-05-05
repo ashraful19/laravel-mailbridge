@@ -47,11 +47,17 @@ return [
             'version' => '8.1.11',
             'install' => 'composer require sendgrid/sendgrid:8.1.11',
             'api_key' => env('SENDGRID_API_KEY'),
+            'marketing_sender_id' => env('SENDGRID_MARKETING_SENDER_ID'),
             'capabilities' => [
                 'transactional.raw',
                 'transactional.templates',
                 'transactional.tags',
                 'transactional.metadata',
+                'marketing.contacts',
+                'marketing.lists',
+                'marketing.subscribers.lookup',
+                'marketing.subscribers.delete',
+                'marketing.campaigns',
             ],
         ],
         'ses' => [
