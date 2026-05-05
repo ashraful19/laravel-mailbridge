@@ -14,14 +14,16 @@ hero:
       link: /guide/capabilities
 
 features:
-  - title: Laravel-native
-    details: Keep normal Mail::send() flows and Laravel Mailable classes. Add MailBridge only where provider abstraction helps.
+  - title: One API over provider SDKs
+    details: Your Laravel app calls MailBridge methods while each adapter uses the provider's official SDK internally.
   - title: Provider SDKs, pinned
     details: Install only the SDKs you use, at versions tested by the package.
   - title: Transactional + marketing
     details: Keep email sends, hosted templates, subscribers, and lists in separate clean lanes.
+  - title: Template data per provider
+    details: Use common template data once, then override only the variables that differ for Brevo, Postmark, Mailgun, or another provider.
   - title: Fallback control
-    details: Use Laravel mail failover for normal mail, and MailBridge fallback for SDK/template/marketing paths.
+    details: Retry transient SDK, template, and marketing provider failures through configured fallback providers.
   - title: Testable by design
     details: Fake provider support and assertions make app tests independent from provider APIs.
   - title: Security-minded
@@ -35,14 +37,22 @@ MailBridge::transactional()
     ->template('welcome')
     ->to($user->email)
     ->data(['name' => $user->name])
+    ->dataFor('brevo', ['FIRSTNAME' => $user->name])
+    ->dataFor('postmark', ['name' => $user->name])
     ->send();
 ```
 
-## Existing Laravel mail still works
+`data()` is the baseline. `dataFor()` is provider-specific and wins when that provider sends the message.
+
+## Laravel Mailables Still Work
 
 ```php
-Mail::to($user)->send(new WelcomeMail($user));
+MailBridge::transactional()
+    ->to($user->email)
+    ->send(new WelcomeMail($user));
 ```
+
+Plain Laravel `Mail::send()` remains untouched for apps that still use it.
 
 ## Install only what you use
 
@@ -55,5 +65,5 @@ php artisan mailbridge:doctor
 
 | Lane | Common features |
 | --- | --- |
-| Transactional | HTML/text, Laravel Mailables, hosted templates, attachments, cc/bcc/reply-to, tags, metadata, provider override, fallback, fake assertions |
+| Transactional | HTML/text, Laravel Mailables, hosted templates, provider-specific template data, attachments, cc/bcc/reply-to, tags, metadata, provider override, fallback, fake assertions |
 | Marketing | subscriber subscribe, lists/groups, fields/attributes, provider override, fallback, fake assertions |

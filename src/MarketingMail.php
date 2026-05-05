@@ -3,7 +3,9 @@
 namespace Ashraful19\LaravelMailbridge;
 
 use Ashraful19\LaravelMailbridge\Data\MarketingResult;
+use Ashraful19\LaravelMailbridge\Data\Campaign;
 use Ashraful19\LaravelMailbridge\Data\Subscriber;
+use Ashraful19\LaravelMailbridge\Data\SubscriberRecord;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
 
 final class MarketingMail
@@ -51,5 +53,49 @@ final class MarketingMail
         }
 
         return $this->manager->subscribe($this->list, $subscriber, $this->provider, $this->fallback);
+    }
+
+    public function unsubscribe(string $email): MarketingResult
+    {
+        if ($this->list === null) {
+            throw new MailbridgeValidationException('Marketing unsubscribe needs list().');
+        }
+
+        return $this->manager->unsubscribe($this->list, $email, $this->provider, $this->fallback);
+    }
+
+    public function getSubscriber(string $email): ?SubscriberRecord
+    {
+        return $this->manager->getSubscriber($email, $this->provider, $this->fallback);
+    }
+
+    public function deleteSubscriber(string $email): MarketingResult
+    {
+        return $this->manager->deleteSubscriber($email, $this->provider, $this->fallback);
+    }
+
+    public function createCampaign(Campaign $campaign): MarketingResult
+    {
+        return $this->manager->createCampaign($campaign, $this->provider, $this->fallback);
+    }
+
+    public function sendCampaign(string|int $campaignId): MarketingResult
+    {
+        return $this->manager->sendCampaign($campaignId, $this->provider, $this->fallback);
+    }
+
+    public function scheduleCampaign(string|int $campaignId, \DateTimeInterface|string $when): MarketingResult
+    {
+        return $this->manager->scheduleCampaign($campaignId, $when, $this->provider, $this->fallback);
+    }
+
+    public function getCampaign(string|int $campaignId): MarketingResult
+    {
+        return $this->manager->getCampaign($campaignId, $this->provider, $this->fallback);
+    }
+
+    public function deleteCampaign(string|int $campaignId): MarketingResult
+    {
+        return $this->manager->deleteCampaign($campaignId, $this->provider, $this->fallback);
     }
 }

@@ -5,17 +5,23 @@ namespace Ashraful19\LaravelMailbridge\Providers;
 use Ashraful19\LaravelMailbridge\Contracts\MarketingProvider;
 use Ashraful19\LaravelMailbridge\Contracts\TransactionalProvider;
 use Ashraful19\LaravelMailbridge\Data\MarketingResult;
+use Ashraful19\LaravelMailbridge\Data\Campaign;
 use Ashraful19\LaravelMailbridge\Data\SendResult;
 use Ashraful19\LaravelMailbridge\Data\Subscriber;
+use Ashraful19\LaravelMailbridge\Data\SubscriberRecord;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
 use Ashraful19\LaravelMailbridge\Support\AddressFormatter;
 use Ashraful19\LaravelMailbridge\Support\ProviderFailureHandler;
 use Brevo\Client\Api\ContactsApi;
+use Brevo\Client\Api\EmailCampaignsApi;
 use Brevo\Client\Api\TransactionalEmailsApi;
 use Brevo\Client\Configuration;
 use Brevo\Client\Model\AddContactToList;
 use Brevo\Client\Model\CreateContact;
+use Brevo\Client\Model\CreateEmailCampaign;
+use Brevo\Client\Model\CreateEmailCampaignRecipients;
 use Brevo\Client\Model\SendSmtpEmail;
+use Brevo\Client\Model\RemoveContactFromList;
 use Throwable;
 
 final class BrevoProvider extends AbstractProvider implements TransactionalProvider, MarketingProvider
@@ -26,6 +32,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
         \Illuminate\Contracts\Container\Container $app,
         private readonly mixed $transactionalApi = null,
         private readonly mixed $contactsApi = null,
+        private readonly mixed $campaignsApi = null,
     ) {
         parent::__construct($name, $config, $app);
     }
@@ -70,6 +77,96 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
         }
     }
 
+    public function unsubscribe(string $list, string $email): MarketingResult
+    {
+        try {
+            $this->contactsClient()->removeContactFromList(new RemoveContactFromList(['emails' => [$email]]), (int) $list);
+
+            return new MarketingResult($this->name, 'unsubscribe', ['list' => $list]);
+        } catch (Throwable $exception) {
+            ProviderFailureHandler::throw($this->name, 'marketing.unsubscribe', $exception);
+        }
+    }
+
+    public function getSubscriber(string $email): ?SubscriberRecord
+    {
+        try {
+            $record = $this->contactsClient()->getContactInfo($email);
+
+            return new SubscriberRecord($this->name, $email, method_exists($record, 'jsonSerialize') ? $record->jsonSerialize() : (array) $record);
+        } catch (Throwable $exception) {
+            ProviderFailureHandler::throw($this->name, 'marketing.subscriber.lookup', $exception);
+        }
+    }
+
+    public function deleteSubscriber(string $email): MarketingResult
+    {
+        try {
+            $this->contactsClient()->deleteContact($email);
+
+            return new MarketingResult($this->name, 'delete_subscriber');
+        } catch (Throwable $exception) {
+            ProviderFailureHandler::throw($this->name, 'marketing.subscriber.delete', $exception);
+        }
+    }
+
+    public function createCampaign(Campaign $campaign): MarketingResult
+    {
+        try {
+            $response = $this->campaignsClient()->createEmailCampaign(new CreateEmailCampaign($this->campaignPayload($campaign)));
+
+            return new MarketingResult($this->name, 'campaign_create', ['campaign_id' => method_exists($response, 'getId') ? $response->getId() : null]);
+        } catch (Throwable $exception) {
+            ProviderFailureHandler::throw($this->name, 'marketing.campaign.create', $exception);
+        }
+    }
+
+    public function sendCampaign(string|int $campaignId): MarketingResult
+    {
+        try {
+            $this->campaignsClient()->sendEmailCampaignNow((int) $campaignId);
+
+            return new MarketingResult($this->name, 'campaign_send', ['campaign_id' => $campaignId]);
+        } catch (Throwable $exception) {
+            ProviderFailureHandler::throw($this->name, 'marketing.campaign.send', $exception);
+        }
+    }
+
+    public function scheduleCampaign(string|int $campaignId, \DateTimeInterface|string $when): MarketingResult
+    {
+        try {
+            $this->campaignsClient()->updateEmailCampaign(new \Brevo\Client\Model\UpdateEmailCampaign([
+                'scheduledAt' => $when instanceof \DateTimeInterface ? $when->format(DATE_ATOM) : $when,
+            ]), (int) $campaignId);
+
+            return new MarketingResult($this->name, 'campaign_schedule', ['campaign_id' => $campaignId]);
+        } catch (Throwable $exception) {
+            ProviderFailureHandler::throw($this->name, 'marketing.campaign.schedule', $exception);
+        }
+    }
+
+    public function getCampaign(string|int $campaignId): MarketingResult
+    {
+        try {
+            $response = $this->campaignsClient()->getEmailCampaign((int) $campaignId, 'globalStats');
+
+            return new MarketingResult($this->name, 'campaign_get', ['campaign_id' => $campaignId, 'campaign' => method_exists($response, 'jsonSerialize') ? $response->jsonSerialize() : (array) $response]);
+        } catch (Throwable $exception) {
+            ProviderFailureHandler::throw($this->name, 'marketing.campaign.get', $exception);
+        }
+    }
+
+    public function deleteCampaign(string|int $campaignId): MarketingResult
+    {
+        try {
+            $this->campaignsClient()->deleteEmailCampaign((int) $campaignId);
+
+            return new MarketingResult($this->name, 'campaign_delete', ['campaign_id' => $campaignId]);
+        } catch (Throwable $exception) {
+            ProviderFailureHandler::throw($this->name, 'marketing.campaign.delete', $exception);
+        }
+    }
+
     public function transactionalPayload(TransactionalMessage $message): array
     {
         $payload = [
@@ -109,6 +206,28 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
     private function contactsClient(): mixed
     {
         return $this->contactsApi ?? new ContactsApi(null, $this->configuration());
+    }
+
+    private function campaignsClient(): mixed
+    {
+        return $this->campaignsApi ?? new EmailCampaignsApi(null, $this->configuration());
+    }
+
+    public function campaignPayload(Campaign $campaign): array
+    {
+        $from = [
+            'email' => $campaign->fromEmail ?? $this->config['from']['address'] ?? $this->app['config']->get('mailbridge.from.address'),
+            'name' => $campaign->fromName ?? $this->config['from']['name'] ?? $this->app['config']->get('mailbridge.from.name'),
+        ];
+
+        return array_filter([
+            'name' => $campaign->name,
+            'subject' => $campaign->subject,
+            'htmlContent' => $campaign->html,
+            'sender' => $from,
+            'recipients' => new CreateEmailCampaignRecipients(['listIds' => array_map('intval', $campaign->lists)]),
+            ...$campaign->options,
+        ], fn ($value) => $value !== null && $value !== []);
     }
 
     private function configuration(): Configuration
