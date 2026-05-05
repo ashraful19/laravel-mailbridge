@@ -50,7 +50,7 @@ Campaign::make('Launch')->list('signup')->option('sender_id', 123456);
 ## Mailchimp
 
 - Lanes: transactional + marketing
-- Env: `MAILCHIMP_API_KEY`, `MAILCHIMP_SERVER_PREFIX`, `MAILCHIMP_AUDIENCE_ID`, `MAILCHIMP_TRANSACTIONAL_KEY`
+- Env: `MAILCHIMP_API_KEY`, `MAILCHIMP_SERVER_PREFIX`, `MAILCHIMP_AUDIENCE_ID`, `MAILCHIMP_TRANSACTIONAL_API_KEY`
 - Mapping: marketing lists map to audiences; transactional uses separate Mailchimp Transactional product.
 
 ## Kit

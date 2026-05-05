@@ -152,7 +152,7 @@ return [
             'api_key' => env('MAILCHIMP_API_KEY'),
             'server' => env('MAILCHIMP_SERVER_PREFIX'),
             'audience_id' => env('MAILCHIMP_AUDIENCE_ID'),
-            'transactional_key' => env('MAILCHIMP_TRANSACTIONAL_KEY'),
+            'transactional_api_key' => env('MAILCHIMP_TRANSACTIONAL_API_KEY'),
             'capabilities' => [
                 'transactional.raw',
                 'transactional.templates',
