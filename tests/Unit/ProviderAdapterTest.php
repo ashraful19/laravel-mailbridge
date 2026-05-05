@@ -5,6 +5,7 @@ namespace Ashraful19\LaravelMailbridge\Tests\Unit;
 use Ashraful19\LaravelMailbridge\Contracts\ProviderAdapter;
 use Ashraful19\LaravelMailbridge\Contracts\TransactionalProvider;
 use Ashraful19\LaravelMailbridge\Data\Address;
+use Ashraful19\LaravelMailbridge\Data\Campaign;
 use Ashraful19\LaravelMailbridge\Data\SendResult;
 use Ashraful19\LaravelMailbridge\Data\Subscriber;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
@@ -96,6 +97,28 @@ final class ProviderAdapterTest extends TestCase
             'name' => 'Ash',
             'fields' => ['company' => 'Converlo'],
         ], $payload);
+    }
+
+    public function test_brevo_maps_campaign_payload(): void
+    {
+        $payload = (new BrevoProvider('brevo', ['api_key' => 'key'], $this->app))->campaignPayload(
+            Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('sender@example.com', 'Sender')->list(123)
+        );
+
+        $this->assertSame('Launch', $payload['name']);
+        $this->assertSame('Hello', $payload['subject']);
+        $this->assertSame(['email' => 'sender@example.com', 'name' => 'Sender'], $payload['sender']);
+    }
+
+    public function test_mailerlite_maps_campaign_payload(): void
+    {
+        $payload = (new MailerliteProvider('mailerlite', ['api_key' => 'key'], $this->app))->campaignPayload(
+            Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('sender@example.com', 'Sender')->list('group-id')
+        );
+
+        $this->assertSame('Launch', $payload['name']);
+        $this->assertSame(['group-id'], $payload['groups']);
+        $this->assertSame('Hello', $payload['emails'][0]['subject']);
     }
 
     public function test_mailable_is_rendered_before_sdk_send(): void

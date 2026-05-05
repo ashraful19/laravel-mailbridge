@@ -8,8 +8,10 @@ use Ashraful19\LaravelMailbridge\Contracts\ProviderAdapter;
 use Ashraful19\LaravelMailbridge\Contracts\TransactionalEmailSender;
 use Ashraful19\LaravelMailbridge\Contracts\TransactionalProvider;
 use Ashraful19\LaravelMailbridge\Data\MarketingResult;
+use Ashraful19\LaravelMailbridge\Data\Campaign;
 use Ashraful19\LaravelMailbridge\Data\SendResult;
 use Ashraful19\LaravelMailbridge\Data\Subscriber;
+use Ashraful19\LaravelMailbridge\Data\SubscriberRecord;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeException;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
@@ -114,27 +116,47 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
 
     public function subscribe(string $list, Subscriber $subscriber, ?string $provider = null, bool $fallback = false): MarketingResult
     {
-        $providers = $this->providersFor('marketing', $provider, $fallback);
-        $last = null;
+        return $this->runMarketing('subscribe', $provider, $fallback, fn (MarketingProvider $adapter, string $name) => $adapter->subscribe($this->resolveListAlias($list, $name), $subscriber));
+    }
 
-        foreach ($providers as $name) {
-            $adapter = $this->provider($name);
+    public function unsubscribe(string $list, string $email, ?string $provider = null, bool $fallback = false): MarketingResult
+    {
+        return $this->runMarketing('unsubscribe', $provider, $fallback, fn (MarketingProvider $adapter, string $name) => $adapter->unsubscribe($this->resolveListAlias($list, $name), $email));
+    }
 
-            if (! $adapter instanceof MarketingProvider) {
-                $last = UnsupportedMailbridgeFeature::make($name, 'marketing');
-                continue;
-            }
+    public function getSubscriber(string $email, ?string $provider = null, bool $fallback = false): ?SubscriberRecord
+    {
+        return $this->runMarketing('subscriber lookup', $provider, $fallback, fn (MarketingProvider $adapter) => $adapter->getSubscriber($email));
+    }
 
-            $resolvedList = $this->resolveListAlias($list, $name);
+    public function deleteSubscriber(string $email, ?string $provider = null, bool $fallback = false): MarketingResult
+    {
+        return $this->runMarketing('subscriber delete', $provider, $fallback, fn (MarketingProvider $adapter) => $adapter->deleteSubscriber($email));
+    }
 
-            try {
-                return $adapter->subscribe($resolvedList, $subscriber);
-            } catch (ProviderTransientException $exception) {
-                $last = $exception;
-            }
-        }
+    public function createCampaign(Campaign $campaign, ?string $provider = null, bool $fallback = false): MarketingResult
+    {
+        return $this->runMarketing('campaign create', $provider, $fallback, fn (MarketingProvider $adapter) => $adapter->createCampaign($campaign));
+    }
 
-        throw $last ?? new MailbridgeException('No marketing provider could complete subscribe.');
+    public function sendCampaign(string|int $campaignId, ?string $provider = null, bool $fallback = false): MarketingResult
+    {
+        return $this->runMarketing('campaign send', $provider, $fallback, fn (MarketingProvider $adapter) => $adapter->sendCampaign($campaignId));
+    }
+
+    public function scheduleCampaign(string|int $campaignId, \DateTimeInterface|string $when, ?string $provider = null, bool $fallback = false): MarketingResult
+    {
+        return $this->runMarketing('campaign schedule', $provider, $fallback, fn (MarketingProvider $adapter) => $adapter->scheduleCampaign($campaignId, $when));
+    }
+
+    public function getCampaign(string|int $campaignId, ?string $provider = null, bool $fallback = false): MarketingResult
+    {
+        return $this->runMarketing('campaign get', $provider, $fallback, fn (MarketingProvider $adapter) => $adapter->getCampaign($campaignId));
+    }
+
+    public function deleteCampaign(string|int $campaignId, ?string $provider = null, bool $fallback = false): MarketingResult
+    {
+        return $this->runMarketing('campaign delete', $provider, $fallback, fn (MarketingProvider $adapter) => $adapter->deleteCampaign($campaignId));
     }
 
     public function providerMetadata(): array
@@ -196,6 +218,29 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
     private function resolveListAlias(string $list, string $provider): string
     {
         return (string) ($this->app['config']->get("mailbridge.lists.{$list}.{$provider}") ?? $list);
+    }
+
+    private function runMarketing(string $operation, ?string $provider, bool $fallback, callable $callback): mixed
+    {
+        $providers = $this->providersFor('marketing', $provider, $fallback);
+        $last = null;
+
+        foreach ($providers as $name) {
+            $adapter = $this->provider($name);
+
+            if (! $adapter instanceof MarketingProvider) {
+                $last = UnsupportedMailbridgeFeature::make($name, 'marketing');
+                continue;
+            }
+
+            try {
+                return $callback($adapter, $name);
+            } catch (ProviderTransientException $exception) {
+                $last = $exception;
+            }
+        }
+
+        throw $last ?? new MailbridgeException("No marketing provider could complete {$operation}.");
     }
 
     private function makeProvider(string $provider): ProviderAdapter

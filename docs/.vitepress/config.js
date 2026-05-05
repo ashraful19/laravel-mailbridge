@@ -18,7 +18,7 @@ export default {
                 items: [
                     { text: 'Installation', link: '/guide/installation' },
                     { text: 'Provider Install', link: '/guide/provider-install' },
-                    { text: 'Normal Laravel Mail', link: '/guide/laravel-mail' },
+                    { text: 'Capabilities', link: '/guide/capabilities' },
                 ],
             },
             {
@@ -28,6 +28,7 @@ export default {
                     { text: 'Templates', link: '/guide/templates' },
                     { text: 'Marketing', link: '/guide/marketing' },
                     { text: 'Fallback', link: '/guide/fallback' },
+                    { text: 'Laravel Mail Compatibility', link: '/guide/laravel-mail' },
                 ],
             },
             {
@@ -35,7 +36,6 @@ export default {
                 items: [
                     { text: 'Testing', link: '/guide/testing' },
                     { text: 'Security', link: '/guide/security' },
-                    { text: 'Capabilities', link: '/guide/capabilities' },
                 ],
             },
         ],

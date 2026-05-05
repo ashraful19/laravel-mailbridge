@@ -1,6 +1,36 @@
 # Capabilities
 
-MailBridge has two lanes: transactional email and marketing email. Each provider adapter declares what it supports, and unsupported features throw `UnsupportedMailbridgeFeature` by default.
+MailBridge has two provider lanes: transactional email and marketing email. Each adapter declares what it supports, and unsupported features throw `UnsupportedMailbridgeFeature` by default.
+
+Use this page to decide which provider should handle each lane and which parts of the common API are available today.
+
+<div class="mb-capability-grid">
+  <a class="mb-capability-card" href="#transactional-features">
+    <span>Transactional</span>
+    <strong>Mailables, raw sends, hosted templates, attachments, metadata, tags, fallback.</strong>
+  </a>
+  <a class="mb-capability-card" href="#template-data-strategy">
+    <span>Template Data</span>
+    <strong>Common `data()` plus provider-specific `dataFor()` overrides.</strong>
+  </a>
+  <a class="mb-capability-card" href="#marketing-features">
+    <span>Marketing</span>
+    <strong>Subscribe, unsubscribe, lookup/delete, campaigns, provider override, fallback.</strong>
+  </a>
+</div>
+
+## Provider Matrix
+
+| Provider | Transactional | Hosted Templates | Provider Data | Marketing | Campaigns |
+| --- | --- | --- | --- | --- | --- |
+| Brevo | Yes | Yes | Yes | Subscribers + lists | Create/send/schedule/get/delete |
+| MailerSend | Yes | Yes | Yes | No | No |
+| Resend | Yes | Partial | Yes | No | No |
+| Postmark | Yes | Yes | Yes | No | No |
+| Mailgun | Yes | Yes | Yes | No | No |
+| MailerLite | No | No | No | Subscribers + groups | Create/schedule/get/delete |
+| Log | Yes | Yes | Yes | Yes | Yes |
+| Array | Yes | Yes | Yes | Yes | Yes |
 
 ## Transactional Features
 
@@ -21,34 +51,64 @@ MailBridge has two lanes: transactional email and marketing email. Each provider
 | Fallback | `withFallback()` | Selected/default provider first, configured fallbacks after. |
 | Testing | `MailBridge::fake()` | Fake assertions for app tests. |
 
+## Template Data Strategy
+
+Provider-hosted templates rarely use identical variable names. MailBridge keeps the app workflow stable:
+
+```php
+MailBridge::transactional()
+    ->template('welcome')
+    ->to($user->email)
+    ->data([
+        'name' => $user->name,
+        'app_url' => config('app.url'),
+    ])
+    ->dataFor('brevo', [
+        'FIRSTNAME' => $user->name,
+    ])
+    ->dataFor('mailgun', [
+        'first_name' => $user->name,
+    ])
+    ->send();
+```
+
+Merge rule:
+
+```php
+finalData = array_replace_recursive(data(), dataFor(selectedProvider))
+```
+
+Provider-specific data wins on key conflicts. Data for unused providers is ignored. During fallback, each attempted provider gets its own merged data.
+
 ## Marketing Features
 
 | Feature | Common API | Notes |
 | --- | --- | --- |
 | Subscribe | `list('signup')->subscribe($subscriber)` | Resolves list aliases from config. |
+| Unsubscribe | `list('signup')->unsubscribe($email)` | Removes a subscriber from a list/group. |
+| Subscriber lookup | `getSubscriber($email)` | Returns normalized `SubscriberRecord` or `null`. |
+| Subscriber delete | `deleteSubscriber($email)` | Deletes the subscriber/contact where supported. |
 | Subscriber data | `Subscriber::make()->name()->field()` | Normalized contact profile data. |
 | Tags/groups | `Subscriber::make()->tag()` | Maps to provider concepts where supported. |
-| Unsubscribe | Not in current common API | Planned after subscribe stabilizes. |
-| Subscriber lookup | Not in current common API | Planned for sync and admin workflows. |
-| Subscriber delete | Not in current common API | Planned as an explicit destructive operation. |
-| Campaigns | Not in current common API | Provider SDKs expose this differently; common API comes later. |
-| Reports | Not in current common API | Planned with campaign operations. |
+| Campaign create | `createCampaign(Campaign::make(...))` | Creates a marketing campaign/broadcast. |
+| Campaign send | `sendCampaign($id)` | Sends immediately where provider supports it. |
+| Campaign schedule | `scheduleCampaign($id, $when)` | Schedules a campaign where provider supports it. |
+| Campaign report/get | `getCampaign($id)` | Returns provider campaign details/report data. |
+| Campaign delete | `deleteCampaign($id)` | Deletes a campaign/draft where supported. |
 | Provider override | `marketing('mailerlite')` | Uses one provider for this request. |
 | Fallback | `withFallback()` | Retries transient provider/network failures only. |
 | Testing | `MailBridge::fake()` | Fake assertions for marketing workflows. |
 
-## Provider Matrix
+## Campaign Purpose
 
-| Provider | Transactional | Templates | Marketing | Campaigns | Webhooks |
-| --- | --- | --- | --- | --- | --- |
-| Brevo | Yes | Yes | Subscribe | No common API yet | Yes |
-| MailerSend | Yes | Yes | No | No | Planned |
-| Resend | Yes | Partial | No | No | Planned |
-| Postmark | Yes | Yes | No | No | Yes |
-| Mailgun | Yes | Yes | No | No | Yes |
-| MailerLite | No | No | Subscribe | No common API yet | Yes |
-| Log | Yes | Yes | Yes | No | No |
-| Array | Yes | Yes | Yes | No | No |
+Campaigns are marketing/broadcast emails sent to a list, group, or audience. Use them for newsletters, launches, and announcements. Use transactional email for one-recipient operational mail such as receipts, login links, and notifications.
+
+## Planned Common APIs
+
+| Area | Status |
+| --- | --- |
+| Webhook normalization | Planned with provider verification first. |
+| Rich campaign reporting normalization | Current `getCampaign()` returns provider data; a normalized report shape can come later. |
 
 ## Capability Checks
 
