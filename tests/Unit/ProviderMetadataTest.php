@@ -19,5 +19,6 @@ final class ProviderMetadataTest extends TestCase
         $this->assertSame('composer require wildbit/postmark-php:7.0.0', $providers['postmark']['install']);
         $this->assertSame('composer require mailgun/mailgun-php:4.4.0 symfony/http-client:7.4.8 nyholm/psr7:1.8.2', $providers['mailgun']['install']);
         $this->assertSame('composer require mailerlite/mailerlite-php:1.0.5', $providers['mailerlite']['install']);
+        $this->assertSame('composer require mailjet/mailjet-apiv3-php:1.6.6', $providers['mailjet']['install']);
     }
 }

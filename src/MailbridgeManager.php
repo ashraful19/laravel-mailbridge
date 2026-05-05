@@ -23,6 +23,7 @@ use Ashraful19\LaravelMailbridge\Providers\LogProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailerliteProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailersendProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailgunProvider;
+use Ashraful19\LaravelMailbridge\Providers\MailjetProvider;
 use Ashraful19\LaravelMailbridge\Providers\PostmarkProvider;
 use Ashraful19\LaravelMailbridge\Providers\ResendProvider;
 use Ashraful19\LaravelMailbridge\Providers\SendgridProvider;
@@ -259,6 +260,7 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
             'resend' => new ResendProvider($provider, $config, $this->app),
             'postmark' => new PostmarkProvider($provider, $config, $this->app),
             'mailgun' => new MailgunProvider($provider, $config, $this->app),
+            'mailjet' => new MailjetProvider($provider, $config, $this->app),
             'mailerlite' => new MailerliteProvider($provider, $config, $this->app),
             default => throw new MailbridgeValidationException("Unknown Mailbridge driver [{$config['driver']}]."),
         };

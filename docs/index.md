@@ -61,11 +61,11 @@ php artisan mailbridge:install
 php artisan mailbridge:doctor
 ```
 
-Current SDK-backed providers include SendGrid, Amazon SES, Brevo, MailerSend, Resend, Postmark, Mailgun, and MailerLite.
+Current SDK-backed providers include SendGrid, Amazon SES, Brevo, MailerSend, Resend, Postmark, MailerLite, Mailgun, and Mailjet.
 
 ## Feature coverage
 
 | Lane | Common features |
 | --- | --- |
 | Transactional | HTML/text, Laravel Mailables, hosted templates, provider-specific template data, attachments, cc/bcc/reply-to, tags, metadata, provider override, fallback, fake assertions |
-| Marketing | subscriber subscribe, lists/groups, fields/attributes, provider override, fallback, fake assertions |
+| Marketing | subscribe/unsubscribe, lookup/delete, lists/groups, fields/attributes, campaigns, provider override, fallback, fake assertions |

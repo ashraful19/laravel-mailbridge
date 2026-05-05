@@ -36,6 +36,7 @@ export default {
                 items: [
                     { text: 'Testing', link: '/guide/testing' },
                     { text: 'Security', link: '/guide/security' },
+                    { text: 'Troubleshooting', link: '/guide/troubleshooting' },
                 ],
             },
         ],

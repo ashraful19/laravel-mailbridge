@@ -18,8 +18,9 @@
         "mailersend",
         "resend",
         "postmark",
+        "mailerlite",
         "mailgun",
-        "mailerlite"
+        "mailjet"
     ],
     "require": {
         "php": "^8.2",
@@ -35,6 +36,7 @@
         "mailerlite/mailerlite-php": "1.0.5",
         "mailersend/laravel-driver": "3.1.0",
         "mailgun/mailgun-php": "4.4.0",
+        "mailjet/mailjet-apiv3-php": "1.6.6",
         "nyholm/psr7": "1.8.2",
         "orchestra/testbench": "^10.0|^11.0",
         "phpunit/phpunit": "^11.0|^12.0",
@@ -51,7 +53,8 @@
         "resend/resend-php": "Install with `php artisan mailbridge:install resend` for Resend support.",
         "wildbit/postmark-php": "Install with `php artisan mailbridge:install postmark` for Postmark support.",
         "mailgun/mailgun-php": "Install with `php artisan mailbridge:install mailgun` for Mailgun support.",
-        "mailerlite/mailerlite-php": "Install with `php artisan mailbridge:install mailerlite` for MailerLite support."
+        "mailerlite/mailerlite-php": "Install with `php artisan mailbridge:install mailerlite` for MailerLite support.",
+        "mailjet/mailjet-apiv3-php": "Install with `php artisan mailbridge:install mailjet` for Mailjet support."
     },
     "autoload": {
         "psr-4": {

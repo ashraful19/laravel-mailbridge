@@ -19,11 +19,11 @@ return [
     'unsupported' => env('MAILBRIDGE_UNSUPPORTED', 'throw'),
 
     'templates' => [
-        // 'welcome' => ['brevo' => 123, 'postmark' => 'welcome-alias'],
+        // 'welcome' => ['sendgrid' => 'd-template', 'ses' => 'welcome', 'brevo' => 123, 'postmark' => 'welcome-alias', 'mailgun' => 'welcome', 'mailjet' => 123456],
     ],
 
     'lists' => [
-        // 'signup' => ['brevo' => 456, 'mailerlite' => 'group-id'],
+        // 'signup' => ['brevo' => 456, 'mailerlite' => 'group-id', 'mailjet' => 789],
     ],
 
     'providers' => [
@@ -118,6 +118,22 @@ return [
                 'webhooks.transactional',
             ],
         ],
+        'mailerlite' => [
+            'driver' => 'mailerlite',
+            'sdk' => 'mailerlite/mailerlite-php',
+            'version' => '1.0.5',
+            'install' => 'composer require mailerlite/mailerlite-php:1.0.5',
+            'api_key' => env('MAILERLITE_API_KEY'),
+            'capabilities' => [
+                'marketing.subscribers',
+                'marketing.groups',
+                'marketing.fields',
+                'marketing.subscribers.lookup',
+                'marketing.subscribers.delete',
+                'marketing.campaigns',
+                'webhooks.marketing',
+            ],
+        ],
         'mailgun' => [
             'driver' => 'mailgun',
             'sdk' => 'mailgun/mailgun-php',
@@ -133,20 +149,22 @@ return [
                 'webhooks.transactional',
             ],
         ],
-        'mailerlite' => [
-            'driver' => 'mailerlite',
-            'sdk' => 'mailerlite/mailerlite-php',
-            'version' => '1.0.5',
-            'install' => 'composer require mailerlite/mailerlite-php:1.0.5',
-            'api_key' => env('MAILERLITE_API_KEY'),
+        'mailjet' => [
+            'driver' => 'mailjet',
+            'sdk' => 'mailjet/mailjet-apiv3-php',
+            'version' => '1.6.6',
+            'install' => 'composer require mailjet/mailjet-apiv3-php:1.6.6',
+            'api_key' => env('MAILJET_API_KEY'),
+            'secret_key' => env('MAILJET_SECRET_KEY'),
             'capabilities' => [
-                'marketing.subscribers',
-                'marketing.groups',
-                'marketing.fields',
+                'transactional.raw',
+                'transactional.templates',
+                'transactional.metadata',
+                'marketing.contacts',
+                'marketing.lists',
                 'marketing.subscribers.lookup',
                 'marketing.subscribers.delete',
                 'marketing.campaigns',
-                'webhooks.marketing',
             ],
         ],
     ],

@@ -84,6 +84,7 @@ MailBridge::transactional('postmark')
 | --- | --- |
 | SendGrid | Uses dynamic templates, categories, and custom args through `sendgrid/sendgrid`. |
 | Amazon SES | Uses `SendEmail`, `SendTemplatedEmail`, and raw MIME for attachments through `aws/aws-sdk-php`. |
+| Mailjet | Uses Send API v3.1 templates and variables through `mailjet/mailjet-apiv3-php`. |
 
 ```php
 MailBridge::transactional('postmark')
