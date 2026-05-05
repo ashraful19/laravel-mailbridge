@@ -91,15 +91,7 @@ $result->metadata;  // provider-specific extra fields
 ```
 
 For full response shapes, see [Response Shapes](/guide/responses).
-
-## Provider Notes
-
-| Provider | Notes |
-| --- | --- |
-| SendGrid | Uses dynamic templates, categories, and custom args through `sendgrid/sendgrid`. |
-| Amazon SES | Uses `SendEmail`, `SendTemplatedEmail`, and raw MIME for attachments through `aws/aws-sdk-php`. |
-| Mailchimp | Uses Mailchimp Transactional through `mailchimp/transactional`; template ids map to template names. |
-| Mailjet | Uses Send API v3.1 templates and variables through `mailjet/mailjet-apiv3-php`. |
+For provider-specific setup and caveats, see [Provider Guides](/guide/providers).
 
 ```php
 MailBridge::transactional('postmark')

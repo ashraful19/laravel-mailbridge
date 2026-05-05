@@ -291,7 +291,7 @@ final class MailchimpProvider extends AbstractProvider implements TransactionalP
         }
 
         $client = new TransactionalClient();
-        $client->setApiKey($this->requireConfig('transactional_key'));
+        $client->setApiKey($this->requireConfig('transactional_api_key'));
 
         return $client;
     }

@@ -41,7 +41,7 @@ final class DoctorCommand extends Command
                 }
             }
 
-            foreach (['api_key', 'server_token', 'domain', 'server', 'audience_id', 'transactional_key'] as $key) {
+            foreach (['api_key', 'server_token', 'domain', 'server', 'audience_id', 'transactional_api_key'] as $key) {
                 if (Arr::exists($provider, $key) && blank($provider[$key])) {
                     $failed = true;
                     $this->components->warn("{$name}: missing {$key}.");

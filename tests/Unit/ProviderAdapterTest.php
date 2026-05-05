@@ -224,7 +224,7 @@ final class ProviderAdapterTest extends TestCase
         $message->data = ['name' => 'Ash'];
         $message->attachments[] = ['content' => 'invoice-bytes', 'name' => 'invoice.txt', 'mime' => 'text/plain'];
 
-        $payload = (new MailchimpProvider('mailchimp', ['api_key' => 'key', 'server' => 'us1', 'audience_id' => 'aud', 'transactional_key' => 'tx'], $this->app))->transactionalTemplatePayload($message);
+        $payload = (new MailchimpProvider('mailchimp', ['api_key' => 'key', 'server' => 'us1', 'audience_id' => 'aud', 'transactional_api_key' => 'tx'], $this->app))->transactionalTemplatePayload($message);
         $mail = $payload['message'];
 
         $this->assertSame('welcome', $payload['template_name']);
@@ -236,7 +236,7 @@ final class ProviderAdapterTest extends TestCase
 
     public function test_mailchimp_maps_subscriber_and_campaign_payloads(): void
     {
-        $provider = new MailchimpProvider('mailchimp', ['api_key' => 'key', 'server' => 'us1', 'audience_id' => 'aud', 'transactional_key' => 'tx'], $this->app);
+        $provider = new MailchimpProvider('mailchimp', ['api_key' => 'key', 'server' => 'us1', 'audience_id' => 'aud', 'transactional_api_key' => 'tx'], $this->app);
 
         $subscriber = $provider->subscriberPayload(Subscriber::make('a@example.com')->name('Ash')->field('COMPANY', 'Converlo'));
         $campaign = $provider->campaignPayload(Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('sender@example.com', 'Sender')->list('audience-id'));
