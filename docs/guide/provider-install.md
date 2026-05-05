@@ -2,6 +2,8 @@
 
 Provider SDKs are optional and installed with exact tested versions. MailBridge tests these SDK pins in development, but they stay out of production dependencies until a provider is installed.
 
+For provider-specific behavior, mappings, and caveats, see [Provider Guides](/guide/providers).
+
 | Provider | Command |
 | --- | --- |
 | SendGrid | `php artisan mailbridge:install sendgrid` |

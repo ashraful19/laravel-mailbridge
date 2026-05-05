@@ -6,6 +6,9 @@ export default {
         ['meta', { name: 'theme-color', content: '#ff2d20' }],
     ],
     themeConfig: {
+        // Docs governance:
+        // - Core guides explain package-level behavior.
+        // - Provider-specific differences belong in /guide/providers.
         siteTitle: 'Laravel MailBridge',
         nav: [
             { text: 'Guide', link: '/guide/installation', activeMatch: '/guide/' },
@@ -18,6 +21,7 @@ export default {
                 items: [
                     { text: 'Installation', link: '/guide/installation' },
                     { text: 'Provider Install', link: '/guide/provider-install' },
+                    { text: 'Provider Guides', link: '/guide/providers' },
                     { text: 'Capabilities', link: '/guide/capabilities' },
                 ],
             },

@@ -26,6 +26,8 @@ It checks missing SDKs, wrong SDK versions, missing provider runtime keys, unsup
 
 For providers that require numeric list IDs in their native APIs (SendGrid, Brevo, Mailjet), MailBridge now validates list IDs before request payload creation and throws `MailbridgeValidationException` for invalid values.
 
+For provider-specific setup and behavior differences, see [Provider Guides](/guide/providers).
+
 ## Template and List Mappings
 
 If `template('welcome')` fails, add provider ids in `config/mailbridge.php`:

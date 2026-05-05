@@ -104,13 +104,7 @@ Provider-specific data wins on key conflicts. Data for unused providers is ignor
 | Fallback | `withFallback()` | Retries transient provider/network failures only. |
 | Testing | `MailBridge::fake()` | Fake assertions for marketing workflows. |
 
-## Provider Mapping Notes
-
-| Provider | Mapping detail |
-| --- | --- |
-| SendGrid | Marketing lists map to ContactDB list ids. Campaign creation needs `SENDGRID_MARKETING_SENDER_ID` or `Campaign::option('sender_id', ...)`. |
-| Mailchimp | MailBridge lists map to Mailchimp audiences. Transactional sends use Mailchimp Transactional, which is separate from the Marketing product. |
-| Kit | MailBridge lists map to Kit `tag:<id>`, `form:<id>`, or `sequence:<id>`. Campaigns map to Kit broadcasts. `deleteSubscriber()` is unsupported because Kit exposes unsubscribe, not hard delete, through the SDK. |
+For provider-specific mappings and caveats, see [Provider Guides](/guide/providers).
 
 ## Campaign Purpose
 

@@ -20,15 +20,14 @@ php artisan mailbridge:install
 The command opens an interactive checklist. You can also install one provider directly:
 
 ```bash
-php artisan mailbridge:install brevo
-php artisan mailbridge:install sendgrid
-php artisan mailbridge:install ses
-php artisan mailbridge:install mailchimp
-php artisan mailbridge:install kit
-php artisan mailbridge:install mailerlite
-php artisan mailbridge:install mailgun
-php artisan mailbridge:install mailjet
+php artisan mailbridge:install <provider>
 ```
+
+Current provider values:
+`sendgrid`, `ses`, `brevo`, `mailersend`, `resend`, `postmark`, `mailchimp`, `kit`, `mailerlite`, `mailgun`, `mailjet`
+
+See [Provider Install](/guide/provider-install) for commands and exact SDK pins.
+See [Provider Guides](/guide/providers) for provider-specific setup, mappings, and caveats.
 
 ## Configure Environment Variables
 
@@ -102,8 +101,6 @@ Provider-hosted templates and marketing lists usually have different ids per pro
     ],
 ],
 ```
-
-Kit does not use traditional lists. Use `tag:<id>`, `form:<id>`, or `sequence:<id>` for Kit list aliases. A bare numeric value is treated as a Kit tag id.
 
 Your app can now use the same alias regardless of provider:
 
