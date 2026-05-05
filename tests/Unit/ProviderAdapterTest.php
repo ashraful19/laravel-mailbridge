@@ -13,6 +13,7 @@ use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeException;
 use Ashraful19\LaravelMailbridge\Exceptions\ProviderTransientException;
 use Ashraful19\LaravelMailbridge\MailbridgeManager;
 use Ashraful19\LaravelMailbridge\Providers\BrevoProvider;
+use Ashraful19\LaravelMailbridge\Providers\KitProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailerliteProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailersendProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailchimpProvider;
@@ -167,6 +168,22 @@ final class ProviderAdapterTest extends TestCase
         $this->assertSame('regular', $campaign['type']);
         $this->assertSame('audience-id', $campaign['recipients']['list_id']);
         $this->assertSame('Hello', $campaign['settings']['subject_line']);
+    }
+
+    public function test_kit_maps_list_targets_and_broadcast_filters(): void
+    {
+        $provider = new KitProvider('kit', ['api_key' => 'key'], $this->app);
+
+        $this->assertSame(['type' => 'tag', 'id' => 123], $provider->listTarget('123'));
+        $this->assertSame(['type' => 'form', 'id' => 456], $provider->listTarget('form:456'));
+
+        $payload = $provider->campaignPayload(
+            Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('sender@example.com')->list('tag:123')
+        );
+
+        $this->assertSame('Hello', $payload['subject']);
+        $this->assertSame('sender@example.com', $payload['email_address']);
+        $this->assertSame([['all' => [['type' => 'tag', 'ids' => [123]]]]], $payload['subscriber_filter']);
     }
 
     public function test_mailersend_maps_template_personalization(): void

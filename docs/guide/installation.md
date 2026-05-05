@@ -24,6 +24,7 @@ php artisan mailbridge:install brevo
 php artisan mailbridge:install sendgrid
 php artisan mailbridge:install ses
 php artisan mailbridge:install mailchimp
+php artisan mailbridge:install kit
 php artisan mailbridge:install mailerlite
 php artisan mailbridge:install mailgun
 php artisan mailbridge:install mailjet
@@ -62,6 +63,7 @@ MAILCHIMP_API_KEY=
 MAILCHIMP_SERVER_PREFIX=us1
 MAILCHIMP_AUDIENCE_ID=
 MAILCHIMP_TRANSACTIONAL_KEY=
+KIT_API_KEY=
 MAILERLITE_API_KEY=
 MAILGUN_API_KEY=
 MAILGUN_DOMAIN=
@@ -92,11 +94,14 @@ Provider-hosted templates and marketing lists usually have different ids per pro
     'signup' => [
         'brevo' => 456,
         'mailchimp' => 'audience-id',
+        'kit' => 'tag:123',
         'mailerlite' => 'group-id',
         'mailjet' => 789,
     ],
 ],
 ```
+
+Kit does not use traditional lists. Use `tag:<id>`, `form:<id>`, or `sequence:<id>` for Kit list aliases. A bare numeric value is treated as a Kit tag id.
 
 Your app can now use the same alias regardless of provider:
 

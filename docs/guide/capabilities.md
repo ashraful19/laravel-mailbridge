@@ -30,6 +30,7 @@ Use this page to decide which provider should handle each lane and which parts o
 | Resend | Yes | Partial | Yes | No | No |
 | Postmark | Yes | Yes | Yes | No | No |
 | Mailchimp | Yes | Yes | Yes | Audiences + members | Create/send/schedule/get/delete |
+| Kit | No | No | No | Subscribers + tags/forms/sequences | Broadcast create/schedule/get/delete |
 | MailerLite | No | No | No | Subscribers + groups | Create/schedule/get/delete |
 | Mailgun | Yes | Yes | Yes | No | No |
 | Mailjet | Yes | Yes | Yes | Subscribers + lists | Create/send/schedule/get/delete |
@@ -102,6 +103,13 @@ Provider-specific data wins on key conflicts. Data for unused providers is ignor
 | Provider override | `marketing('mailerlite')` | Uses one provider for this request. |
 | Fallback | `withFallback()` | Retries transient provider/network failures only. |
 | Testing | `MailBridge::fake()` | Fake assertions for marketing workflows. |
+
+## Provider Mapping Notes
+
+| Provider | Mapping detail |
+| --- | --- |
+| Mailchimp | MailBridge lists map to Mailchimp audiences. Transactional sends use Mailchimp Transactional, which is separate from the Marketing product. |
+| Kit | MailBridge lists map to Kit `tag:<id>`, `form:<id>`, or `sequence:<id>`. Campaigns map to Kit broadcasts. `deleteSubscriber()` is unsupported because Kit exposes unsubscribe, not hard delete, through the SDK. |
 
 ## Campaign Purpose
 

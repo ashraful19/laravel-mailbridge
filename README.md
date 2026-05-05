@@ -9,7 +9,7 @@
 
 Provider-neutral transactional and marketing email for Laravel 12+.
 
-MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Your app uses the same MailBridge methods while SendGrid, Amazon SES, Brevo, MailerSend, Resend, Postmark, Mailchimp, MailerLite, Mailgun, and Mailjet each run through their official SDKs internally.
+MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Your app uses the same MailBridge methods while SendGrid, Amazon SES, Brevo, MailerSend, Resend, Postmark, Mailchimp, Kit, MailerLite, Mailgun, and Mailjet each run through their official SDKs internally.
 
 ## Documentation
 
@@ -56,6 +56,7 @@ MAILCHIMP_API_KEY=
 MAILCHIMP_SERVER_PREFIX=us1
 MAILCHIMP_AUDIENCE_ID=
 MAILCHIMP_TRANSACTIONAL_KEY=
+KIT_API_KEY=
 MAILJET_API_KEY=
 MAILJET_SECRET_KEY=
 ```
@@ -152,6 +153,7 @@ Provider SDKs are installed only when selected, and each install command uses th
 | Resend | Transactional | raw send, template payload, tags/headers | `php artisan mailbridge:install resend` |
 | Postmark | Transactional | raw send, hosted templates, tags, metadata, message streams | `php artisan mailbridge:install postmark` |
 | Mailchimp | Transactional + marketing | Mailchimp Transactional sends, audiences, subscribers, tags, campaigns | `php artisan mailbridge:install mailchimp` |
+| Kit | Marketing | subscribers, tags/forms/sequences, broadcasts | `php artisan mailbridge:install kit` |
 | MailerLite | Marketing | subscribers, groups, fields, campaigns | `php artisan mailbridge:install mailerlite` |
 | Mailgun | Transactional | raw send, hosted templates, tags, variables, metadata | `php artisan mailbridge:install mailgun` |
 | Mailjet | Transactional + marketing | raw send, hosted templates, subscribers, lists, campaigns | `php artisan mailbridge:install mailjet` |

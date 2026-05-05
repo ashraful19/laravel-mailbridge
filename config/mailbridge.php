@@ -23,7 +23,7 @@ return [
     ],
 
     'lists' => [
-        // 'signup' => ['brevo' => 456, 'mailchimp' => 'audience-id', 'mailerlite' => 'group-id', 'mailjet' => 789],
+        // 'signup' => ['brevo' => 456, 'mailchimp' => 'audience-id', 'kit' => 'tag:123', 'mailerlite' => 'group-id', 'mailjet' => 789],
     ],
 
     'providers' => [
@@ -156,6 +156,21 @@ return [
                 'marketing.lists',
                 'marketing.subscribers.lookup',
                 'marketing.subscribers.delete',
+                'marketing.campaigns',
+            ],
+        ],
+        'kit' => [
+            'driver' => 'kit',
+            'sdk' => 'convertkit/convertkitapi',
+            'version' => '2.4',
+            'install' => 'composer require convertkit/convertkitapi:2.4',
+            'api_key' => env('KIT_API_KEY'),
+            'capabilities' => [
+                'marketing.contacts',
+                'marketing.tags',
+                'marketing.forms',
+                'marketing.sequences',
+                'marketing.subscribers.lookup',
                 'marketing.campaigns',
             ],
         ],
