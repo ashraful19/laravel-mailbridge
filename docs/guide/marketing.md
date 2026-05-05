@@ -94,3 +94,25 @@ MailBridge::marketing('mailerlite')
     ->list('signup')
     ->subscribe(Subscriber::make($user->email));
 ```
+
+## Return Types
+
+Most marketing methods return `MarketingResult`:
+
+```php
+$result = MailBridge::marketing()
+    ->list('signup')
+    ->subscribe(Subscriber::make($user->email));
+
+$result->provider;  // provider name
+$result->operation; // e.g. subscribe, campaign_create, campaign_send
+$result->metadata;  // provider-specific fields
+```
+
+Subscriber lookup returns `SubscriberRecord|null`:
+
+```php
+$record = MailBridge::marketing()->getSubscriber($user->email);
+```
+
+For full response shapes, see [Response Shapes](/guide/responses).

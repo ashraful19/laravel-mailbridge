@@ -23,6 +23,7 @@ Source docs:
 - [Transactional email](docs/guide/transactional.md)
 - [Hosted templates and provider-specific data](docs/guide/templates.md)
 - [Marketing email](docs/guide/marketing.md)
+- [Response shapes](docs/guide/responses.md)
 - [Fallback](docs/guide/fallback.md)
 - [Testing](docs/guide/testing.md)
 - [Security](docs/guide/security.md)
@@ -139,6 +140,45 @@ $campaign = MailBridge::marketing()
             ->html('<h1>Launch</h1>')
             ->list('signup')
     );
+```
+
+## Return Objects
+
+Transactional send returns `SendResult`:
+
+```php
+$result = MailBridge::transactional()
+    ->to($user->email)
+    ->subject('Welcome')
+    ->text('Hello')
+    ->send();
+
+$result->provider;  // string, selected provider name
+$result->messageId; // ?string, provider message id when available
+$result->metadata;  // array, provider-specific extra data
+```
+
+Marketing actions return `MarketingResult`:
+
+```php
+$result = MailBridge::marketing()
+    ->list('signup')
+    ->subscribe(Subscriber::make($user->email));
+
+$result->provider;  // string
+$result->operation; // string, e.g. subscribe, campaign_create
+$result->metadata;  // array, provider-specific fields
+```
+
+Subscriber lookup returns `SubscriberRecord|null`:
+
+```php
+$record = MailBridge::marketing()->getSubscriber($user->email);
+
+// null when subscriber not found
+$record?->provider; // string
+$record?->email;    // string
+$record?->data;     // array, provider-native payload
 ```
 
 ## Providers

@@ -78,6 +78,20 @@ MailBridge::transactional('postmark')
     ->send();
 ```
 
+## Return Type
+
+`send()` returns `SendResult`:
+
+```php
+$result = MailBridge::transactional()->to($user->email)->subject('Welcome')->text('Hello')->send();
+
+$result->provider;  // provider name
+$result->messageId; // provider message id when available
+$result->metadata;  // provider-specific extra fields
+```
+
+For full response shapes, see [Response Shapes](/guide/responses).
+
 ## Provider Notes
 
 | Provider | Notes |
