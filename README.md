@@ -9,7 +9,7 @@
 
 Provider-neutral transactional and marketing email for Laravel 12+.
 
-MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Your app uses the same MailBridge methods while SendGrid, Amazon SES, Brevo, MailerSend, Resend, Postmark, MailerLite, Mailgun, and Mailjet each run through their official SDKs internally.
+MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Your app uses the same MailBridge methods while SendGrid, Amazon SES, Brevo, MailerSend, Resend, Postmark, Mailchimp, Kit, MailerLite, Mailgun, and Mailjet each run through their official SDKs internally.
 
 ## Documentation
 
@@ -23,10 +23,12 @@ Source docs:
 - [Transactional email](docs/guide/transactional.md)
 - [Hosted templates and provider-specific data](docs/guide/templates.md)
 - [Marketing email](docs/guide/marketing.md)
+- [Response shapes](docs/guide/responses.md)
 - [Fallback](docs/guide/fallback.md)
 - [Testing](docs/guide/testing.md)
 - [Security](docs/guide/security.md)
 - [Capabilities](docs/guide/capabilities.md)
+- [Troubleshooting](docs/guide/troubleshooting.md)
 
 ## Quick Start
 
@@ -47,10 +49,16 @@ MAILBRIDGE_TRANSACTIONAL=brevo
 MAILBRIDGE_MARKETING=mailerlite
 BREVO_API_KEY=
 SENDGRID_API_KEY=
+SENDGRID_MARKETING_SENDER_ID=
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 AWS_DEFAULT_REGION=us-east-1
 MAILERLITE_API_KEY=
+MAILCHIMP_API_KEY=
+MAILCHIMP_SERVER_PREFIX=us1
+MAILCHIMP_AUDIENCE_ID=
+MAILCHIMP_TRANSACTIONAL_KEY=
+KIT_API_KEY=
 MAILJET_API_KEY=
 MAILJET_SECRET_KEY=
 ```
@@ -134,18 +142,59 @@ $campaign = MailBridge::marketing()
     );
 ```
 
+## Return Objects
+
+Transactional send returns `SendResult`:
+
+```php
+$result = MailBridge::transactional()
+    ->to($user->email)
+    ->subject('Welcome')
+    ->text('Hello')
+    ->send();
+
+$result->provider;  // string, selected provider name
+$result->messageId; // ?string, provider message id when available
+$result->metadata;  // array, provider-specific extra data
+```
+
+Marketing actions return `MarketingResult`:
+
+```php
+$result = MailBridge::marketing()
+    ->list('signup')
+    ->subscribe(Subscriber::make($user->email));
+
+$result->provider;  // string
+$result->operation; // string, e.g. subscribe, campaign_create
+$result->metadata;  // array, provider-specific fields
+```
+
+Subscriber lookup returns `SubscriberRecord|null`:
+
+```php
+$record = MailBridge::marketing()->getSubscriber($user->email);
+
+// null when subscriber not found
+$record?->provider; // string
+$record?->email;    // string
+$record?->data;     // array, provider-native payload
+```
+
 ## Providers
 
 Provider SDKs are installed only when selected, and each install command uses the exact SDK version tested by MailBridge.
 
 | Provider | Lane | Current adapter support | Install |
 | --- | --- | --- | --- |
-| SendGrid | Transactional | raw send, hosted templates, categories, custom args | `php artisan mailbridge:install sendgrid` |
+| SendGrid | Transactional + marketing | raw send, hosted templates, categories, custom args, contacts, lists, campaigns | `php artisan mailbridge:install sendgrid` |
 | Amazon SES | Transactional | raw send, hosted templates, SES tags, raw MIME attachments | `php artisan mailbridge:install ses` |
 | Brevo | Transactional + marketing | raw send, hosted templates, tags, subscribers, campaigns | `php artisan mailbridge:install brevo` |
 | MailerSend | Transactional | raw send, hosted templates, personalization, tags | `php artisan mailbridge:install mailersend` |
 | Resend | Transactional | raw send, template payload, tags/headers | `php artisan mailbridge:install resend` |
 | Postmark | Transactional | raw send, hosted templates, tags, metadata, message streams | `php artisan mailbridge:install postmark` |
+| Mailchimp | Transactional + marketing | Mailchimp Transactional sends, audiences, subscribers, tags, campaigns | `php artisan mailbridge:install mailchimp` |
+| Kit | Marketing | subscribers, tags/forms/sequences, broadcasts | `php artisan mailbridge:install kit` |
 | MailerLite | Marketing | subscribers, groups, fields, campaigns | `php artisan mailbridge:install mailerlite` |
 | Mailgun | Transactional | raw send, hosted templates, tags, variables, metadata | `php artisan mailbridge:install mailgun` |
 | Mailjet | Transactional + marketing | raw send, hosted templates, subscribers, lists, campaigns | `php artisan mailbridge:install mailjet` |
@@ -173,6 +222,8 @@ Transactional email:
 | Provider override | Send one message through a specific provider without changing config. |
 | Fallback control | Use `withFallback()` or `withFallback(false)` per send. |
 | Testing fake | Assert transactional sends without touching provider APIs. |
+
+Provider note: SendGrid, Brevo, and Mailjet marketing list IDs must be numeric. MailBridge validates these IDs before building provider payloads.
 
 Marketing email currently implemented in the common API:
 

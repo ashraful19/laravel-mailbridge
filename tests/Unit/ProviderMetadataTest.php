@@ -17,8 +17,10 @@ final class ProviderMetadataTest extends TestCase
         $this->assertSame('composer require mailersend/laravel-driver:3.1.0', $providers['mailersend']['install']);
         $this->assertSame('composer require resend/resend-php:1.1.0', $providers['resend']['install']);
         $this->assertSame('composer require wildbit/postmark-php:7.0.0', $providers['postmark']['install']);
-        $this->assertSame('composer require mailgun/mailgun-php:4.4.0 symfony/http-client:7.4.8 nyholm/psr7:1.8.2', $providers['mailgun']['install']);
         $this->assertSame('composer require mailerlite/mailerlite-php:1.0.5', $providers['mailerlite']['install']);
+        $this->assertSame('composer require mailchimp/marketing:3.0.80 mailchimp/transactional:1.4.1', $providers['mailchimp']['install']);
+        $this->assertSame('composer require convertkit/convertkitapi:2.4', $providers['kit']['install']);
+        $this->assertSame('composer require mailgun/mailgun-php:4.4.0 symfony/http-client:7.4.8 nyholm/psr7:1.8.2', $providers['mailgun']['install']);
         $this->assertSame('composer require mailjet/mailjet-apiv3-php:1.6.6', $providers['mailjet']['install']);
     }
 }

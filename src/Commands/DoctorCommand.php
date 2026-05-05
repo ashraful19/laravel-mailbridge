@@ -18,27 +18,53 @@ final class DoctorCommand extends Command
         $providers = config('mailbridge.providers', []);
 
         foreach ($providers as $name => $provider) {
-            $sdk = $provider['sdk'] ?? null;
+            $sdkPackages = $provider['sdk_packages'] ?? null;
+            $sdkPackages = is_array($sdkPackages)
+                ? $sdkPackages
+                : array_filter([(string) ($provider['sdk'] ?? '') => $provider['version'] ?? null]);
 
-            if ($sdk) {
-                $installed = $this->installedVersion($sdk);
+            foreach ($sdkPackages as $sdk => $version) {
+                if ($sdk === '') {
+                    continue;
+                }
+
+                $installed = $this->installedVersion((string) $sdk);
 
                 if ($installed === null) {
                     $failed = true;
-                    $this->components->error("{$name}: SDK missing. Run: php artisan mailbridge:install {$name}");
-                } elseif ($installed !== ($provider['version'] ?? null)) {
+                    $this->components->error("{$name}: SDK [{$sdk}] missing. Run: php artisan mailbridge:install {$name}");
+                } elseif ($installed !== $version) {
                     $failed = true;
-                    $this->components->warn("{$name}: SDK version [{$installed}] differs from tested [{$provider['version']}].");
+                    $this->components->warn("{$name}: SDK [{$sdk}] version [{$installed}] differs from tested [{$version}].");
                 } else {
-                    $this->components->info("{$name}: SDK {$installed} OK.");
+                    $this->components->info("{$name}: SDK [{$sdk}] {$installed} OK.");
                 }
             }
 
-            foreach (['api_key', 'server_token', 'domain'] as $key) {
+            foreach (['api_key', 'server_token', 'domain', 'server', 'audience_id', 'transactional_key'] as $key) {
                 if (Arr::exists($provider, $key) && blank($provider[$key])) {
                     $failed = true;
                     $this->components->warn("{$name}: missing {$key}.");
                 }
+            }
+
+            if ($name === 'sendgrid' && in_array('marketing.campaigns', (array) ($provider['capabilities'] ?? []), true) && blank($provider['marketing_sender_id'] ?? null)) {
+                $failed = true;
+                $this->components->warn("{$name}: missing marketing_sender_id.");
+            }
+
+            if ($name === 'ses') {
+                foreach (['key', 'secret', 'region'] as $key) {
+                    if (blank($provider[$key] ?? null)) {
+                        $failed = true;
+                        $this->components->warn("{$name}: missing {$key}.");
+                    }
+                }
+            }
+
+            if ($name === 'mailjet' && blank($provider['secret_key'] ?? null)) {
+                $failed = true;
+                $this->components->warn("{$name}: missing secret_key.");
             }
         }
 

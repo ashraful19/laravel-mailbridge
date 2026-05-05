@@ -78,12 +78,27 @@ MailBridge::transactional('postmark')
     ->send();
 ```
 
+## Return Type
+
+`send()` returns `SendResult`:
+
+```php
+$result = MailBridge::transactional()->to($user->email)->subject('Welcome')->text('Hello')->send();
+
+$result->provider;  // provider name
+$result->messageId; // provider message id when available
+$result->metadata;  // provider-specific extra fields
+```
+
+For full response shapes, see [Response Shapes](/guide/responses).
+
 ## Provider Notes
 
 | Provider | Notes |
 | --- | --- |
 | SendGrid | Uses dynamic templates, categories, and custom args through `sendgrid/sendgrid`. |
 | Amazon SES | Uses `SendEmail`, `SendTemplatedEmail`, and raw MIME for attachments through `aws/aws-sdk-php`. |
+| Mailchimp | Uses Mailchimp Transactional through `mailchimp/transactional`; template ids map to template names. |
 | Mailjet | Uses Send API v3.1 templates and variables through `mailjet/mailjet-apiv3-php`. |
 
 ```php

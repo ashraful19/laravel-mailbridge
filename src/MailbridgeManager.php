@@ -19,9 +19,11 @@ use Ashraful19\LaravelMailbridge\Exceptions\ProviderTransientException;
 use Ashraful19\LaravelMailbridge\Exceptions\UnsupportedMailbridgeFeature;
 use Ashraful19\LaravelMailbridge\Providers\ArrayProvider;
 use Ashraful19\LaravelMailbridge\Providers\BrevoProvider;
+use Ashraful19\LaravelMailbridge\Providers\KitProvider;
 use Ashraful19\LaravelMailbridge\Providers\LogProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailerliteProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailersendProvider;
+use Ashraful19\LaravelMailbridge\Providers\MailchimpProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailgunProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailjetProvider;
 use Ashraful19\LaravelMailbridge\Providers\PostmarkProvider;
@@ -259,6 +261,8 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
             'mailersend' => new MailersendProvider($provider, $config, $this->app),
             'resend' => new ResendProvider($provider, $config, $this->app),
             'postmark' => new PostmarkProvider($provider, $config, $this->app),
+            'mailchimp' => new MailchimpProvider($provider, $config, $this->app),
+            'kit' => new KitProvider($provider, $config, $this->app),
             'mailgun' => new MailgunProvider($provider, $config, $this->app),
             'mailjet' => new MailjetProvider($provider, $config, $this->app),
             'mailerlite' => new MailerliteProvider($provider, $config, $this->app),

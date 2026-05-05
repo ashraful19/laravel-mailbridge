@@ -27,6 +27,7 @@ export default {
                     { text: 'Transactional', link: '/guide/transactional' },
                     { text: 'Templates', link: '/guide/templates' },
                     { text: 'Marketing', link: '/guide/marketing' },
+                    { text: 'Response Shapes', link: '/guide/responses' },
                     { text: 'Fallback', link: '/guide/fallback' },
                     { text: 'Laravel Mail Compatibility', link: '/guide/laravel-mail' },
                 ],

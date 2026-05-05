@@ -14,15 +14,17 @@ final class RemoveProviderCommand extends Command
     public function handle(): int
     {
         $provider = (string) $this->argument('provider');
-        $sdk = config("mailbridge.providers.{$provider}.sdk");
+        $config = config("mailbridge.providers.{$provider}", []);
+        $sdks = array_keys((array) ($config['sdk_packages'] ?? []));
+        $sdks = $sdks !== [] ? $sdks : array_filter([(string) ($config['sdk'] ?? '')]);
 
-        if (! $sdk) {
+        if ($sdks === []) {
             $this->error("Provider [{$provider}] has no removable SDK configured.");
 
             return self::FAILURE;
         }
 
-        $command = "composer remove {$sdk}";
+        $command = 'composer remove ' . implode(' ', $sdks);
         $this->components->info("Running: {$command}");
         $result = Process::timeout(null)->tty(false)->run($command);
 

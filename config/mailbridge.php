@@ -19,11 +19,11 @@ return [
     'unsupported' => env('MAILBRIDGE_UNSUPPORTED', 'throw'),
 
     'templates' => [
-        // 'welcome' => ['sendgrid' => 'd-template', 'ses' => 'welcome', 'brevo' => 123, 'postmark' => 'welcome-alias', 'mailgun' => 'welcome', 'mailjet' => 123456],
+        // 'welcome' => ['sendgrid' => 'd-template', 'ses' => 'welcome', 'brevo' => 123, 'postmark' => 'welcome-alias', 'mailchimp' => 'welcome-template', 'mailgun' => 'welcome', 'mailjet' => 123456],
     ],
 
     'lists' => [
-        // 'signup' => ['brevo' => 456, 'mailerlite' => 'group-id', 'mailjet' => 789],
+        // 'signup' => ['brevo' => 456, 'mailchimp' => 'audience-id', 'kit' => 'tag:123', 'mailerlite' => 'group-id', 'mailjet' => 789],
     ],
 
     'providers' => [
@@ -47,11 +47,17 @@ return [
             'version' => '8.1.11',
             'install' => 'composer require sendgrid/sendgrid:8.1.11',
             'api_key' => env('SENDGRID_API_KEY'),
+            'marketing_sender_id' => env('SENDGRID_MARKETING_SENDER_ID'),
             'capabilities' => [
                 'transactional.raw',
                 'transactional.templates',
                 'transactional.tags',
                 'transactional.metadata',
+                'marketing.contacts',
+                'marketing.lists',
+                'marketing.subscribers.lookup',
+                'marketing.subscribers.delete',
+                'marketing.campaigns',
             ],
         ],
         'ses' => [
@@ -132,6 +138,46 @@ return [
                 'marketing.subscribers.delete',
                 'marketing.campaigns',
                 'webhooks.marketing',
+            ],
+        ],
+        'mailchimp' => [
+            'driver' => 'mailchimp',
+            'sdk' => 'mailchimp/marketing',
+            'version' => '3.0.80',
+            'sdk_packages' => [
+                'mailchimp/marketing' => '3.0.80',
+                'mailchimp/transactional' => '1.4.1',
+            ],
+            'install' => 'composer require mailchimp/marketing:3.0.80 mailchimp/transactional:1.4.1',
+            'api_key' => env('MAILCHIMP_API_KEY'),
+            'server' => env('MAILCHIMP_SERVER_PREFIX'),
+            'audience_id' => env('MAILCHIMP_AUDIENCE_ID'),
+            'transactional_key' => env('MAILCHIMP_TRANSACTIONAL_KEY'),
+            'capabilities' => [
+                'transactional.raw',
+                'transactional.templates',
+                'transactional.tags',
+                'transactional.metadata',
+                'marketing.contacts',
+                'marketing.lists',
+                'marketing.subscribers.lookup',
+                'marketing.subscribers.delete',
+                'marketing.campaigns',
+            ],
+        ],
+        'kit' => [
+            'driver' => 'kit',
+            'sdk' => 'convertkit/convertkitapi',
+            'version' => '2.4',
+            'install' => 'composer require convertkit/convertkitapi:2.4',
+            'api_key' => env('KIT_API_KEY'),
+            'capabilities' => [
+                'marketing.contacts',
+                'marketing.tags',
+                'marketing.forms',
+                'marketing.sequences',
+                'marketing.subscribers.lookup',
+                'marketing.campaigns',
             ],
         ],
         'mailgun' => [
