@@ -10,6 +10,7 @@ Provider SDKs are optional and installed with exact tested versions. MailBridge 
 | MailerSend | `php artisan mailbridge:install mailersend` |
 | Resend | `php artisan mailbridge:install resend` |
 | Postmark | `php artisan mailbridge:install postmark` |
+| Mailchimp | `php artisan mailbridge:install mailchimp` |
 | MailerLite | `php artisan mailbridge:install mailerlite` |
 | Mailgun | `php artisan mailbridge:install mailgun` |
 | Mailjet | `php artisan mailbridge:install mailjet` |
@@ -44,6 +45,7 @@ Exact SDK pins used by the installer:
 | MailerSend | `mailersend/laravel-driver:3.1.0` |
 | Resend | `resend/resend-php:1.1.0` |
 | Postmark | `wildbit/postmark-php:7.0.0` |
+| Mailchimp | `mailchimp/marketing:3.0.80` and `mailchimp/transactional:1.4.1` |
 | MailerLite | `mailerlite/mailerlite-php:1.0.5` |
 | Mailgun | `mailgun/mailgun-php:4.4.0` |
 | Mailjet | `mailjet/mailjet-apiv3-php:1.6.6` |

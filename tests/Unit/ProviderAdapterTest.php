@@ -15,6 +15,7 @@ use Ashraful19\LaravelMailbridge\MailbridgeManager;
 use Ashraful19\LaravelMailbridge\Providers\BrevoProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailerliteProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailersendProvider;
+use Ashraful19\LaravelMailbridge\Providers\MailchimpProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailgunProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailjetProvider;
 use Ashraful19\LaravelMailbridge\Providers\PostmarkProvider;
@@ -135,6 +136,37 @@ final class ProviderAdapterTest extends TestCase
         $this->assertSame('Launch', $payload['Title']);
         $this->assertSame('Hello', $payload['Subject']);
         $this->assertSame(123, $payload['ContactsListID']);
+    }
+
+    public function test_mailchimp_maps_transactional_template_payload(): void
+    {
+        $message = $this->message();
+        $message->templateId = 'welcome';
+        $message->data = ['name' => 'Ash'];
+        $message->attachments[] = ['content' => 'invoice-bytes', 'name' => 'invoice.txt', 'mime' => 'text/plain'];
+
+        $payload = (new MailchimpProvider('mailchimp', ['api_key' => 'key', 'server' => 'us1', 'audience_id' => 'aud', 'transactional_key' => 'tx'], $this->app))->transactionalTemplatePayload($message);
+        $mail = $payload['message'];
+
+        $this->assertSame('welcome', $payload['template_name']);
+        $this->assertSame('sender@example.com', $mail['from_email']);
+        $this->assertSame(['name' => 'name', 'content' => 'Ash'], $mail['global_merge_vars'][0]);
+        $this->assertSame(['email' => 'a@example.com', 'name' => 'A', 'type' => 'to'], $mail['to'][0]);
+        $this->assertSame(base64_encode('invoice-bytes'), $mail['attachments'][0]['content']);
+    }
+
+    public function test_mailchimp_maps_subscriber_and_campaign_payloads(): void
+    {
+        $provider = new MailchimpProvider('mailchimp', ['api_key' => 'key', 'server' => 'us1', 'audience_id' => 'aud', 'transactional_key' => 'tx'], $this->app);
+
+        $subscriber = $provider->subscriberPayload(Subscriber::make('a@example.com')->name('Ash')->field('COMPANY', 'Converlo'));
+        $campaign = $provider->campaignPayload(Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('sender@example.com', 'Sender')->list('audience-id'));
+
+        $this->assertSame('subscribed', $subscriber['status']);
+        $this->assertSame('Ash', $subscriber['merge_fields']['FNAME']);
+        $this->assertSame('regular', $campaign['type']);
+        $this->assertSame('audience-id', $campaign['recipients']['list_id']);
+        $this->assertSame('Hello', $campaign['settings']['subject_line']);
     }
 
     public function test_mailersend_maps_template_personalization(): void
