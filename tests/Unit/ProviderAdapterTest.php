@@ -16,8 +16,11 @@ use Ashraful19\LaravelMailbridge\Providers\BrevoProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailerliteProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailersendProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailgunProvider;
+use Ashraful19\LaravelMailbridge\Providers\MailjetProvider;
 use Ashraful19\LaravelMailbridge\Providers\PostmarkProvider;
 use Ashraful19\LaravelMailbridge\Providers\ResendProvider;
+use Ashraful19\LaravelMailbridge\Providers\SendgridProvider;
+use Ashraful19\LaravelMailbridge\Providers\SesProvider;
 use Ashraful19\LaravelMailbridge\Tests\TestCase;
 use Illuminate\Mail\Mailable;
 use ReflectionProperty;
@@ -71,6 +74,67 @@ final class ProviderAdapterTest extends TestCase
 
         $this->assertSame('welcome', $payload['template']);
         $this->assertSame('{"name":"Ash","campaign":"signup"}', $payload['h:X-Mailgun-Variables']);
+    }
+
+    public function test_sendgrid_maps_template_payload(): void
+    {
+        $message = $this->message();
+        $message->templateId = 'd-welcome';
+        $message->data = ['name' => 'Ash'];
+        $message->attachments[] = ['content' => 'invoice-bytes', 'name' => 'invoice.txt', 'mime' => 'text/plain'];
+
+        $payload = json_decode(json_encode((new SendgridProvider('sendgrid', ['api_key' => 'key'], $this->app))->payload($message), JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+
+        $this->assertSame('d-welcome', $payload['template_id']);
+        $this->assertSame(['name' => 'Ash'], $payload['personalizations'][0]['dynamic_template_data']);
+        $this->assertSame('welcome', $payload['categories'][0]);
+        $this->assertSame('signup', $payload['personalizations'][0]['custom_args']['campaign']);
+        $this->assertSame(base64_encode('invoice-bytes'), $payload['attachments'][0]['content']);
+        $this->assertSame('invoice.txt', $payload['attachments'][0]['filename']);
+    }
+
+    public function test_ses_maps_template_payload(): void
+    {
+        $message = $this->message();
+        $message->templateId = 'welcome';
+        $message->data = ['name' => 'Ash'];
+
+        $payload = (new SesProvider('ses', ['key' => 'key', 'secret' => 'secret', 'region' => 'us-east-1'], $this->app))->templatePayload($message);
+
+        $this->assertSame('Sender <sender@example.com>', $payload['Source']);
+        $this->assertSame(['A <a@example.com>'], $payload['Destination']['ToAddresses']);
+        $this->assertSame('welcome', $payload['Template']);
+        $this->assertSame('{"name":"Ash"}', $payload['TemplateData']);
+        $this->assertSame(['Name' => 'tag', 'Value' => 'welcome'], $payload['Tags'][0]);
+    }
+
+    public function test_mailjet_maps_template_payload(): void
+    {
+        $message = $this->message();
+        $message->templateId = 123456;
+        $message->data = ['name' => 'Ash'];
+        $message->attachments[] = ['content' => 'invoice-bytes', 'name' => 'invoice.txt', 'mime' => 'text/plain'];
+
+        $payload = (new MailjetProvider('mailjet', ['api_key' => 'key', 'secret_key' => 'secret'], $this->app))->payload($message);
+        $mail = $payload['Messages'][0];
+
+        $this->assertSame(123456, $mail['TemplateID']);
+        $this->assertTrue($mail['TemplateLanguage']);
+        $this->assertSame(['name' => 'Ash'], $mail['Variables']);
+        $this->assertSame([['Email' => 'a@example.com', 'Name' => 'A']], $mail['To']);
+        $this->assertSame('{"campaign":"signup"}', $mail['CustomID']);
+        $this->assertSame(base64_encode('invoice-bytes'), $mail['Attachments'][0]['Base64Content']);
+    }
+
+    public function test_mailjet_maps_campaign_payload(): void
+    {
+        $payload = (new MailjetProvider('mailjet', ['api_key' => 'key', 'secret_key' => 'secret'], $this->app))->campaignPayload(
+            Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('sender@example.com', 'Sender')->list(123)
+        );
+
+        $this->assertSame('Launch', $payload['Title']);
+        $this->assertSame('Hello', $payload['Subject']);
+        $this->assertSame(123, $payload['ContactsListID']);
     }
 
     public function test_mailersend_maps_template_personalization(): void

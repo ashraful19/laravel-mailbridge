@@ -9,12 +9,18 @@
         "mail",
         "transactional",
         "marketing",
+        "sendgrid",
+        "ses",
+        "amazon-ses",
+        "aws-ses",
+        "aws",
         "brevo",
         "mailersend",
         "resend",
         "postmark",
+        "mailerlite",
         "mailgun",
-        "mailerlite"
+        "mailjet"
     ],
     "require": {
         "php": "^8.2",
@@ -25,24 +31,30 @@
         "illuminate/support": "^12.0|^13.0"
     },
     "require-dev": {
+        "aws/aws-sdk-php": "3.379.0",
         "getbrevo/brevo-php": "2.0.14",
         "mailerlite/mailerlite-php": "1.0.5",
         "mailersend/laravel-driver": "3.1.0",
         "mailgun/mailgun-php": "4.4.0",
+        "mailjet/mailjet-apiv3-php": "1.6.6",
         "nyholm/psr7": "1.8.2",
         "orchestra/testbench": "^10.0|^11.0",
         "phpunit/phpunit": "^11.0|^12.0",
         "resend/resend-php": "1.1.0",
+        "sendgrid/sendgrid": "8.1.11",
         "symfony/http-client": "7.4.8",
         "wildbit/postmark-php": "7.0.0"
     },
     "suggest": {
+        "sendgrid/sendgrid": "Install with `php artisan mailbridge:install sendgrid` for SendGrid support.",
+        "aws/aws-sdk-php": "Install with `php artisan mailbridge:install ses` for Amazon SES support.",
         "getbrevo/brevo-php": "Install with `php artisan mailbridge:install brevo` for Brevo support.",
         "mailersend/laravel-driver": "Install with `php artisan mailbridge:install mailersend` for MailerSend support.",
         "resend/resend-php": "Install with `php artisan mailbridge:install resend` for Resend support.",
         "wildbit/postmark-php": "Install with `php artisan mailbridge:install postmark` for Postmark support.",
         "mailgun/mailgun-php": "Install with `php artisan mailbridge:install mailgun` for Mailgun support.",
-        "mailerlite/mailerlite-php": "Install with `php artisan mailbridge:install mailerlite` for MailerLite support."
+        "mailerlite/mailerlite-php": "Install with `php artisan mailbridge:install mailerlite` for MailerLite support.",
+        "mailjet/mailjet-apiv3-php": "Install with `php artisan mailbridge:install mailjet` for Mailjet support."
     },
     "autoload": {
         "psr-4": {

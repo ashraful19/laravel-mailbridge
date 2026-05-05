@@ -21,7 +21,11 @@ The command opens an interactive checklist. You can also install one provider di
 
 ```bash
 php artisan mailbridge:install brevo
+php artisan mailbridge:install sendgrid
+php artisan mailbridge:install ses
 php artisan mailbridge:install mailerlite
+php artisan mailbridge:install mailgun
+php artisan mailbridge:install mailjet
 ```
 
 ## Configure Environment Variables
@@ -46,12 +50,18 @@ Add the API keys for the providers you installed:
 
 ```dotenv
 BREVO_API_KEY=
+SENDGRID_API_KEY=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
 MAILERSEND_API_KEY=
 RESEND_API_KEY=
 POSTMARK_SERVER_TOKEN=
+MAILERLITE_API_KEY=
 MAILGUN_API_KEY=
 MAILGUN_DOMAIN=
-MAILERLITE_API_KEY=
+MAILJET_API_KEY=
+MAILJET_SECRET_KEY=
 ```
 
 You only need env vars for providers you actually use.
@@ -63,9 +73,12 @@ Provider-hosted templates and marketing lists usually have different ids per pro
 ```php
 'templates' => [
     'welcome' => [
+        'sendgrid' => 'd-welcome-template-id',
+        'ses' => 'welcome',
         'brevo' => 123,
         'postmark' => 'welcome-alias',
         'mailgun' => 'welcome',
+        'mailjet' => 123456,
     ],
 ],
 
@@ -73,6 +86,7 @@ Provider-hosted templates and marketing lists usually have different ids per pro
     'signup' => [
         'brevo' => 456,
         'mailerlite' => 'group-id',
+        'mailjet' => 789,
     ],
 ],
 ```

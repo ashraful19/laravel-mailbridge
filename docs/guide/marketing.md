@@ -1,6 +1,6 @@
 # Marketing
 
-Marketing operations are for subscriber lists, groups, campaign sends, and contact lifecycle actions. MailBridge keeps the method names stable while Brevo and MailerLite use their own SDKs internally.
+Marketing operations are for subscriber lists, groups, campaign sends, and contact lifecycle actions. MailBridge keeps the method names stable while Brevo, MailerLite, and Mailjet use their own SDKs internally.
 
 ## Subscribe
 
@@ -54,7 +54,7 @@ MailBridge::marketing('brevo')->getCampaign($campaignId);
 MailBridge::marketing('brevo')->deleteCampaign($campaignId);
 ```
 
-MailerLite supports create, schedule, get, and delete through its SDK. Immediate send is provider-dependent, so unsupported providers throw `UnsupportedMailbridgeFeature`.
+Mailjet and Brevo support create, send, schedule, get, and delete where the provider API accepts the common campaign shape. MailerLite supports create, schedule, get, and delete through its SDK. Unsupported provider methods throw `UnsupportedMailbridgeFeature`.
 
 ## Provider Override and Fallback
 

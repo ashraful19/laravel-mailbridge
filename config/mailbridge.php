@@ -19,11 +19,11 @@ return [
     'unsupported' => env('MAILBRIDGE_UNSUPPORTED', 'throw'),
 
     'templates' => [
-        // 'welcome' => ['brevo' => 123, 'postmark' => 'welcome-alias'],
+        // 'welcome' => ['sendgrid' => 'd-template', 'ses' => 'welcome', 'brevo' => 123, 'postmark' => 'welcome-alias', 'mailgun' => 'welcome', 'mailjet' => 123456],
     ],
 
     'lists' => [
-        // 'signup' => ['brevo' => 456, 'mailerlite' => 'group-id'],
+        // 'signup' => ['brevo' => 456, 'mailerlite' => 'group-id', 'mailjet' => 789],
     ],
 
     'providers' => [
@@ -40,6 +40,34 @@ return [
             'version' => null,
             'install' => null,
             'capabilities' => ['transactional.raw', 'transactional.templates', 'marketing.subscribers', 'marketing.campaigns'],
+        ],
+        'sendgrid' => [
+            'driver' => 'sendgrid',
+            'sdk' => 'sendgrid/sendgrid',
+            'version' => '8.1.11',
+            'install' => 'composer require sendgrid/sendgrid:8.1.11',
+            'api_key' => env('SENDGRID_API_KEY'),
+            'capabilities' => [
+                'transactional.raw',
+                'transactional.templates',
+                'transactional.tags',
+                'transactional.metadata',
+            ],
+        ],
+        'ses' => [
+            'driver' => 'ses',
+            'sdk' => 'aws/aws-sdk-php',
+            'version' => '3.379.0',
+            'install' => 'composer require aws/aws-sdk-php:3.379.0',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'capabilities' => [
+                'transactional.raw',
+                'transactional.templates',
+                'transactional.tags',
+                'transactional.metadata',
+            ],
         ],
         'brevo' => [
             'driver' => 'brevo',
@@ -90,6 +118,22 @@ return [
                 'webhooks.transactional',
             ],
         ],
+        'mailerlite' => [
+            'driver' => 'mailerlite',
+            'sdk' => 'mailerlite/mailerlite-php',
+            'version' => '1.0.5',
+            'install' => 'composer require mailerlite/mailerlite-php:1.0.5',
+            'api_key' => env('MAILERLITE_API_KEY'),
+            'capabilities' => [
+                'marketing.subscribers',
+                'marketing.groups',
+                'marketing.fields',
+                'marketing.subscribers.lookup',
+                'marketing.subscribers.delete',
+                'marketing.campaigns',
+                'webhooks.marketing',
+            ],
+        ],
         'mailgun' => [
             'driver' => 'mailgun',
             'sdk' => 'mailgun/mailgun-php',
@@ -105,20 +149,22 @@ return [
                 'webhooks.transactional',
             ],
         ],
-        'mailerlite' => [
-            'driver' => 'mailerlite',
-            'sdk' => 'mailerlite/mailerlite-php',
-            'version' => '1.0.5',
-            'install' => 'composer require mailerlite/mailerlite-php:1.0.5',
-            'api_key' => env('MAILERLITE_API_KEY'),
+        'mailjet' => [
+            'driver' => 'mailjet',
+            'sdk' => 'mailjet/mailjet-apiv3-php',
+            'version' => '1.6.6',
+            'install' => 'composer require mailjet/mailjet-apiv3-php:1.6.6',
+            'api_key' => env('MAILJET_API_KEY'),
+            'secret_key' => env('MAILJET_SECRET_KEY'),
             'capabilities' => [
-                'marketing.subscribers',
-                'marketing.groups',
-                'marketing.fields',
+                'transactional.raw',
+                'transactional.templates',
+                'transactional.metadata',
+                'marketing.contacts',
+                'marketing.lists',
                 'marketing.subscribers.lookup',
                 'marketing.subscribers.delete',
                 'marketing.campaigns',
-                'webhooks.marketing',
             ],
         ],
     ],
