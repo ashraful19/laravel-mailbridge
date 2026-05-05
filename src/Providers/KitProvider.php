@@ -104,7 +104,9 @@ final class KitProvider extends AbstractProvider implements MarketingProvider
 
     public function sendCampaign(string|int $campaignId): MarketingResult
     {
-        return $this->scheduleCampaign($campaignId, new \DateTimeImmutable('+1 minute'));
+        $result = $this->scheduleCampaign($campaignId, new \DateTimeImmutable('+1 minute'));
+
+        return new MarketingResult($this->name, 'campaign_send', $result->metadata + ['mode' => 'scheduled_now']);
     }
 
     public function scheduleCampaign(string|int $campaignId, \DateTimeInterface|string $when): MarketingResult

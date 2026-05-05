@@ -11,6 +11,7 @@ use Ashraful19\LaravelMailbridge\Data\Subscriber;
 use Ashraful19\LaravelMailbridge\Data\SubscriberRecord;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeException;
+use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
 use Ashraful19\LaravelMailbridge\Exceptions\ProviderTransientException;
 use Ashraful19\LaravelMailbridge\Support\ProviderFailureHandler;
 use SendGrid\Mail\Attachment;
@@ -56,14 +57,15 @@ final class SendgridProvider extends AbstractProvider implements TransactionalPr
     public function subscribe(string $list, Subscriber $subscriber): MarketingResult
     {
         try {
+            $listId = $this->numericId($list, 'SendGrid list id');
             $response = $this->sendgridApiClient()->contactdb()->recipients()->post([$this->subscriberPayload($subscriber)]);
             $this->ensureSuccess($response, 'marketing.subscribe.recipient');
 
             $recipientId = $this->responseData($response)['persisted_recipients'][0] ?? $this->recipientId($subscriber->email);
-            $response = $this->sendgridApiClient()->contactdb()->lists()->_($list)->recipients()->post([$recipientId]);
+            $response = $this->sendgridApiClient()->contactdb()->lists()->_($listId)->recipients()->post([$recipientId]);
             $this->ensureSuccess($response, 'marketing.subscribe.list');
 
-            return new MarketingResult($this->name, 'subscribe', ['list' => $list, 'subscriber_id' => $recipientId]);
+            return new MarketingResult($this->name, 'subscribe', ['list' => (string) $listId, 'subscriber_id' => $recipientId]);
         } catch (Throwable $exception) {
             ProviderFailureHandler::throw($this->name, 'marketing.subscribe', $exception);
         }
@@ -72,11 +74,12 @@ final class SendgridProvider extends AbstractProvider implements TransactionalPr
     public function unsubscribe(string $list, string $email): MarketingResult
     {
         try {
+            $listId = $this->numericId($list, 'SendGrid list id');
             $recipientId = $this->recipientId($email);
-            $response = $this->sendgridApiClient()->contactdb()->lists()->_($list)->recipients()->_($recipientId)->delete();
+            $response = $this->sendgridApiClient()->contactdb()->lists()->_($listId)->recipients()->_($recipientId)->delete();
             $this->ensureSuccess($response, 'marketing.unsubscribe');
 
-            return new MarketingResult($this->name, 'unsubscribe', ['list' => $list, 'subscriber_id' => $recipientId]);
+            return new MarketingResult($this->name, 'unsubscribe', ['list' => (string) $listId, 'subscriber_id' => $recipientId]);
         } catch (Throwable $exception) {
             ProviderFailureHandler::throw($this->name, 'marketing.unsubscribe', $exception);
         }
@@ -188,13 +191,14 @@ final class SendgridProvider extends AbstractProvider implements TransactionalPr
 
     public function campaignPayload(Campaign $campaign): array
     {
+        $listIds = array_map(fn (string|int $list): int => $this->numericId($list, 'SendGrid campaign list id'), $campaign->lists);
         $payload = array_filter([
             'title' => $campaign->name,
             'subject' => $campaign->subject,
             'html_content' => $campaign->html,
             'plain_content' => $campaign->options['plain_content'] ?? null,
             'sender_id' => $campaign->options['sender_id'] ?? $this->requireConfig('marketing_sender_id'),
-            'list_ids' => array_map('intval', $campaign->lists),
+            'list_ids' => $listIds,
             'categories' => $campaign->options['categories'] ?? [],
         ], fn (mixed $value): bool => $value !== null && $value !== []);
 
@@ -312,6 +316,15 @@ final class SendgridProvider extends AbstractProvider implements TransactionalPr
         $parts = preg_split('/\s+/', trim($name), 2);
 
         return [$parts[0] ?? null, $parts[1] ?? null];
+    }
+
+    private function numericId(string|int $value, string $label): int
+    {
+        if (! is_numeric((string) $value)) {
+            throw new MailbridgeValidationException("{$label} must be numeric.");
+        }
+
+        return (int) $value;
     }
 
     private function throwResponseFailure(string $operation, int $status, string $body): never

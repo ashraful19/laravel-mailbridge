@@ -10,6 +10,7 @@ use Ashraful19\LaravelMailbridge\Data\SendResult;
 use Ashraful19\LaravelMailbridge\Data\Subscriber;
 use Ashraful19\LaravelMailbridge\Data\SubscriberRecord;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
+use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
 use Ashraful19\LaravelMailbridge\Support\AddressFormatter;
 use Ashraful19\LaravelMailbridge\Support\ProviderFailureHandler;
 use Brevo\Client\Api\ContactsApi;
@@ -60,11 +61,12 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
         if ($this->contactsApi === null && ! class_exists(ContactsApi::class)) {
             throw $this->missingSdk();
         }
+        $listId = $this->numericId($list, 'Brevo list id');
 
         $payload = [
             'email' => $subscriber->email,
             'attributes' => array_filter(array_replace($subscriber->fields, ['FIRSTNAME' => $subscriber->name]), fn ($value) => $value !== null),
-            'listIds' => [(int) $list],
+            'listIds' => [$listId],
             'updateEnabled' => true,
         ];
 
@@ -80,7 +82,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
     public function unsubscribe(string $list, string $email): MarketingResult
     {
         try {
-            $this->contactsClient()->removeContactFromList(new RemoveContactFromList(['emails' => [$email]]), (int) $list);
+            $this->contactsClient()->removeContactFromList(new RemoveContactFromList(['emails' => [$email]]), $this->numericId($list, 'Brevo list id'));
 
             return new MarketingResult($this->name, 'unsubscribe', ['list' => $list]);
         } catch (Throwable $exception) {
@@ -215,6 +217,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
 
     public function campaignPayload(Campaign $campaign): array
     {
+        $listIds = array_map(fn (string|int $list): int => $this->numericId($list, 'Brevo campaign list id'), $campaign->lists);
         $from = [
             'email' => $campaign->fromEmail ?? $this->config['from']['address'] ?? $this->app['config']->get('mailbridge.from.address'),
             'name' => $campaign->fromName ?? $this->config['from']['name'] ?? $this->app['config']->get('mailbridge.from.name'),
@@ -225,9 +228,18 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
             'subject' => $campaign->subject,
             'htmlContent' => $campaign->html,
             'sender' => $from,
-            'recipients' => new CreateEmailCampaignRecipients(['listIds' => array_map('intval', $campaign->lists)]),
+            'recipients' => new CreateEmailCampaignRecipients(['listIds' => $listIds]),
             ...$campaign->options,
         ], fn ($value) => $value !== null && $value !== []);
+    }
+
+    private function numericId(string|int $value, string $label): int
+    {
+        if (! is_numeric((string) $value)) {
+            throw new MailbridgeValidationException("{$label} must be numeric.");
+        }
+
+        return (int) $value;
     }
 
     private function configuration(): Configuration

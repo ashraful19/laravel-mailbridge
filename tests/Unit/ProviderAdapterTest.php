@@ -10,6 +10,7 @@ use Ashraful19\LaravelMailbridge\Data\SendResult;
 use Ashraful19\LaravelMailbridge\Data\Subscriber;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeException;
+use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
 use Ashraful19\LaravelMailbridge\Exceptions\ProviderTransientException;
 use Ashraful19\LaravelMailbridge\MailbridgeManager;
 use Ashraful19\LaravelMailbridge\Providers\BrevoProvider;
@@ -64,6 +65,18 @@ final class ProviderAdapterTest extends TestCase
         $this->assertSame(['A <a@example.com>'], $args[1]);
         $this->assertSame('welcome-alias', $args[2]);
         $this->assertSame(['name' => 'Ash'], $args[3]);
+    }
+
+    public function test_postmark_raw_arguments_match_sdk_signature_slots(): void
+    {
+        $message = $this->message();
+        $message->attachments[] = ['content' => 'invoice-bytes', 'name' => 'invoice.txt', 'mime' => 'text/plain'];
+
+        $args = (new PostmarkProvider('postmark', ['server_token' => 'token'], $this->app))->rawArguments($message);
+
+        $this->assertNull($args[6]);
+        $this->assertNull($args[7]);
+        $this->assertIsArray($args[11]);
     }
 
     public function test_mailgun_maps_template_payload(): void
@@ -144,6 +157,14 @@ final class ProviderAdapterTest extends TestCase
         $this->assertContains('/campaigns/456', $client->client->paths());
     }
 
+    public function test_sendgrid_rejects_non_numeric_list_ids(): void
+    {
+        $provider = new SendgridProvider('sendgrid', ['api_key' => 'key', 'marketing_sender_id' => '42'], $this->app);
+
+        $this->expectException(MailbridgeValidationException::class);
+        $provider->campaignPayload(Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->list('not-numeric'));
+    }
+
     public function test_ses_maps_template_payload(): void
     {
         $message = $this->message();
@@ -186,6 +207,14 @@ final class ProviderAdapterTest extends TestCase
         $this->assertSame('Launch', $payload['Title']);
         $this->assertSame('Hello', $payload['Subject']);
         $this->assertSame(123, $payload['ContactsListID']);
+    }
+
+    public function test_mailjet_rejects_non_numeric_list_ids(): void
+    {
+        $provider = new MailjetProvider('mailjet', ['api_key' => 'key', 'secret_key' => 'secret'], $this->app);
+
+        $this->expectException(MailbridgeValidationException::class);
+        $provider->campaignPayload(Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->list('group-id'));
     }
 
     public function test_mailchimp_maps_transactional_template_payload(): void
@@ -235,6 +264,33 @@ final class ProviderAdapterTest extends TestCase
         $this->assertSame([['all' => [['type' => 'tag', 'ids' => [123]]]]], $payload['subscriber_filter']);
     }
 
+    public function test_kit_supports_form_and_sequence_filters(): void
+    {
+        $provider = new KitProvider('kit', ['api_key' => 'key'], $this->app);
+
+        $formPayload = $provider->campaignPayload(
+            Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('sender@example.com')->list('form:12')
+        );
+        $sequencePayload = $provider->campaignPayload(
+            Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('sender@example.com')->list('sequence:34')
+        );
+
+        $this->assertSame([['all' => [['type' => 'segment', 'ids' => [12]]]]], $formPayload['subscriber_filter']);
+        $this->assertSame([['all' => [['type' => 'segment', 'ids' => [34]]]]], $sequencePayload['subscriber_filter']);
+    }
+
+    public function test_kit_send_campaign_maps_to_campaign_send_operation(): void
+    {
+        $client = new FakeKitClient();
+        $provider = new KitProvider('kit', ['api_key' => 'key'], $this->app, $client);
+
+        $result = $provider->sendCampaign(99);
+
+        $this->assertSame('campaign_send', $result->operation);
+        $this->assertSame(99, $result->metadata['campaign_id']);
+        $this->assertSame(1, $client->updateCalls);
+    }
+
     public function test_mailersend_maps_template_personalization(): void
     {
         $message = $this->message();
@@ -270,6 +326,14 @@ final class ProviderAdapterTest extends TestCase
         $this->assertSame('Launch', $payload['name']);
         $this->assertSame('Hello', $payload['subject']);
         $this->assertSame(['email' => 'sender@example.com', 'name' => 'Sender'], $payload['sender']);
+    }
+
+    public function test_brevo_rejects_non_numeric_list_ids(): void
+    {
+        $provider = new BrevoProvider('brevo', ['api_key' => 'key'], $this->app);
+
+        $this->expectException(MailbridgeValidationException::class);
+        $provider->campaignPayload(Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('sender@example.com', 'Sender')->list('abc'));
     }
 
     public function test_mailerlite_maps_campaign_payload(): void
@@ -471,6 +535,16 @@ final class FakeSendgridResponse
     public function headers(bool $assoc = false): array
     {
         return $assoc ? ['X-Message-Id' => 'sg_123'] : [];
+    }
+}
+
+final class FakeKitClient
+{
+    public int $updateCalls = 0;
+
+    public function update_broadcast(int $id, bool $public, \DateTimeInterface $send_at): void
+    {
+        $this->updateCalls++;
     }
 }
 

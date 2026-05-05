@@ -47,6 +47,25 @@ final class DoctorCommand extends Command
                     $this->components->warn("{$name}: missing {$key}.");
                 }
             }
+
+            if ($name === 'sendgrid' && in_array('marketing.campaigns', (array) ($provider['capabilities'] ?? []), true) && blank($provider['marketing_sender_id'] ?? null)) {
+                $failed = true;
+                $this->components->warn("{$name}: missing marketing_sender_id.");
+            }
+
+            if ($name === 'ses') {
+                foreach (['key', 'secret', 'region'] as $key) {
+                    if (blank($provider[$key] ?? null)) {
+                        $failed = true;
+                        $this->components->warn("{$name}: missing {$key}.");
+                    }
+                }
+            }
+
+            if ($name === 'mailjet' && blank($provider['secret_key'] ?? null)) {
+                $failed = true;
+                $this->components->warn("{$name}: missing secret_key.");
+            }
         }
 
         foreach (['transactional', 'marketing'] as $lane) {

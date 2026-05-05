@@ -183,6 +183,8 @@ Transactional email:
 | Fallback control | Use `withFallback()` or `withFallback(false)` per send. |
 | Testing fake | Assert transactional sends without touching provider APIs. |
 
+Provider note: SendGrid, Brevo, and Mailjet marketing list IDs must be numeric. MailBridge validates these IDs before building provider payloads.
+
 Marketing email currently implemented in the common API:
 
 | Feature | Purpose |

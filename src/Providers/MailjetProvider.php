@@ -11,6 +11,7 @@ use Ashraful19\LaravelMailbridge\Data\Subscriber;
 use Ashraful19\LaravelMailbridge\Data\SubscriberRecord;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeException;
+use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
 use Ashraful19\LaravelMailbridge\Exceptions\ProviderTransientException;
 use Ashraful19\LaravelMailbridge\Support\ProviderFailureHandler;
 use Mailjet\Client;
@@ -51,17 +52,18 @@ final class MailjetProvider extends AbstractProvider implements TransactionalPro
     public function subscribe(string $list, Subscriber $subscriber): MarketingResult
     {
         try {
+            $listId = $this->numericId($list, 'Mailjet list id');
             $response = $this->mailjetClient()->post(Resources::$Contact, ['body' => ['Email' => $subscriber->email, 'Name' => $subscriber->name]]);
             $this->ensureSuccess($response, 'marketing.subscribe.contact');
             $contactId = $response->getData()[0]['ID'] ?? $subscriber->email;
 
             $response = $this->mailjetClient()->post(Resources::$ContactManagecontactslists, [
                 'id' => $contactId,
-                'body' => ['ContactsLists' => [['ListID' => $list, 'Action' => 'addforce']]],
+                'body' => ['ContactsLists' => [['ListID' => $listId, 'Action' => 'addforce']]],
             ]);
             $this->ensureSuccess($response, 'marketing.subscribe.list');
 
-            return new MarketingResult($this->name, 'subscribe', ['list' => $list, 'contact_id' => $contactId]);
+            return new MarketingResult($this->name, 'subscribe', ['list' => (string) $listId, 'contact_id' => $contactId]);
         } catch (Throwable $exception) {
             ProviderFailureHandler::throw($this->name, 'marketing.subscribe', $exception);
         }
@@ -70,14 +72,15 @@ final class MailjetProvider extends AbstractProvider implements TransactionalPro
     public function unsubscribe(string $list, string $email): MarketingResult
     {
         try {
+            $listId = $this->numericId($list, 'Mailjet list id');
             $contactId = $this->contactId($email);
             $response = $this->mailjetClient()->post(Resources::$ContactManagecontactslists, [
                 'id' => $contactId,
-                'body' => ['ContactsLists' => [['ListID' => $list, 'Action' => 'remove']]],
+                'body' => ['ContactsLists' => [['ListID' => $listId, 'Action' => 'remove']]],
             ]);
             $this->ensureSuccess($response, 'marketing.unsubscribe');
 
-            return new MarketingResult($this->name, 'unsubscribe', ['list' => $list, 'contact_id' => $contactId]);
+            return new MarketingResult($this->name, 'unsubscribe', ['list' => (string) $listId, 'contact_id' => $contactId]);
         } catch (Throwable $exception) {
             ProviderFailureHandler::throw($this->name, 'marketing.unsubscribe', $exception);
         }
@@ -206,16 +209,27 @@ final class MailjetProvider extends AbstractProvider implements TransactionalPro
 
     public function campaignPayload(Campaign $campaign): array
     {
+        $listId = isset($campaign->lists[0]) ? $this->numericId($campaign->lists[0], 'Mailjet campaign list id') : null;
+
         return array_filter([
             'Locale' => $campaign->options['locale'] ?? 'en_US',
             'SenderEmail' => $campaign->fromEmail,
             'Sender' => $campaign->fromName,
             'Subject' => $campaign->subject,
             'Title' => $campaign->name,
-            'ContactsListID' => $campaign->lists[0] ?? null,
+            'ContactsListID' => $listId,
             'Html-part' => $campaign->html,
             ...$campaign->options,
         ], fn ($value) => $value !== null && $value !== []);
+    }
+
+    private function numericId(string|int $value, string $label): int
+    {
+        if (! is_numeric((string) $value)) {
+            throw new MailbridgeValidationException("{$label} must be numeric.");
+        }
+
+        return (int) $value;
     }
 
     private function contactId(string $email): string|int

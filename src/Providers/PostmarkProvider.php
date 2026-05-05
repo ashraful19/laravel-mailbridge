@@ -50,7 +50,7 @@ final class PostmarkProvider extends AbstractProvider implements TransactionalPr
             $message->html,
             $message->text,
             $message->tags[0] ?? null,
-            $this->attachments($message),
+            null,
             $message->replyTo ? AddressFormatter::string($message->replyTo) : null,
             AddressFormatter::strings($message->cc),
             AddressFormatter::strings($message->bcc),

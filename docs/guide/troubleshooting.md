@@ -6,7 +6,7 @@ Run `mailbridge:doctor` first:
 php artisan mailbridge:doctor
 ```
 
-It checks missing SDKs, wrong SDK versions, missing API keys, missing sender config, missing template/list mappings, unsupported providers, and fallback config.
+It checks missing SDKs, wrong SDK versions, missing provider runtime keys, unsupported providers, and fallback config.
 
 ## Provider Setup
 
@@ -23,6 +23,8 @@ It checks missing SDKs, wrong SDK versions, missing API keys, missing sender con
 | MailerLite | `MAILERLITE_API_KEY` exists and group ids are mapped for list aliases. |
 | Mailgun | `MAILGUN_API_KEY` and `MAILGUN_DOMAIN` exist; domain DNS is verified. |
 | Mailjet | `MAILJET_API_KEY` and `MAILJET_SECRET_KEY` exist; sender/domain is validated. |
+
+For providers that require numeric list IDs in their native APIs (SendGrid, Brevo, Mailjet), MailBridge now validates list IDs before request payload creation and throws `MailbridgeValidationException` for invalid values.
 
 ## Template and List Mappings
 
