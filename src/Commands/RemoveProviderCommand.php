@@ -26,7 +26,11 @@ final class RemoveProviderCommand extends Command
 
         $command = 'composer remove ' . implode(' ', $sdks);
         $this->components->info("Running: {$command}");
-        $result = Process::timeout(null)->tty(false)->run($command);
+        $pending = Process::tty(false);
+        $pending = method_exists($pending, 'forever')
+            ? $pending->forever()
+            : $pending->timeout(PHP_INT_MAX);
+        $result = $pending->run($command);
 
         $this->output->write($result->output());
         $this->output->write($result->errorOutput());
