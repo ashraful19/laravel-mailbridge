@@ -47,7 +47,7 @@ MAILBRIDGE_TRANSACTIONAL_FALLBACKS=postmark,resend
 MAILBRIDGE_MARKETING_FALLBACKS=brevo
 ```
 
-Add the API keys for the providers you installed:
+Add provider runtime settings for the providers you installed:
 
 ```dotenv
 BREVO_API_KEY=
@@ -75,7 +75,7 @@ You only need env vars for providers you actually use.
 
 ## Configure Templates and Lists
 
-Provider-hosted templates and marketing lists usually have different ids per provider. Map them in `config/mailbridge.php`:
+Template and list identifiers are provider-specific. Define alias mappings in `config/mailbridge.php`:
 
 ```php
 'templates' => [
@@ -98,6 +98,24 @@ Provider-hosted templates and marketing lists usually have different ids per pro
         'kit' => 'tag:123',
         'mailerlite' => 'group-id',
         'mailjet' => 789,
+    ],
+],
+```
+
+If your deployment model requires environment-driven mappings, reference `env(...)` in config:
+
+```php
+'templates' => [
+    'welcome' => [
+        'sendgrid' => env('MAILBRIDGE_TEMPLATE_WELCOME_SENDGRID'),
+        'mailjet' => (int) env('MAILBRIDGE_TEMPLATE_WELCOME_MAILJET'),
+    ],
+],
+
+'lists' => [
+    'signup' => [
+        'sendgrid' => (int) env('MAILBRIDGE_LIST_SIGNUP_SENDGRID'),
+        'mailchimp' => env('MAILBRIDGE_LIST_SIGNUP_MAILCHIMP'),
     ],
 ],
 ```

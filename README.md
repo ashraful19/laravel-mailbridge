@@ -41,7 +41,7 @@ php artisan mailbridge:install
 
 `mailbridge:install` opens a terminal checklist so you can install one or more provider SDKs. The base package does not install every SDK.
 
-Set the env vars for the providers you use:
+Set runtime provider settings in `.env`:
 
 ```dotenv
 MAIL_FROM_ADDRESS=hello@example.com
@@ -63,6 +63,8 @@ KIT_API_KEY=
 MAILJET_API_KEY=
 MAILJET_SECRET_KEY=
 ```
+
+Configure template and list mappings in `config/mailbridge.php` (`templates`, `lists`).
 
 ## Basic Usage
 
