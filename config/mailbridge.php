@@ -1,217 +1,121 @@
 <?php
 
 return [
+    // Default provider keys used when no provider is passed at runtime.
+    // Possible values: log, array, sendgrid, ses, brevo, mailersend, resend, postmark, mailerlite, mailchimp, kit, mailgun, mailjet.
     'default' => [
+        // Transactional lane default provider.
         'transactional' => env('MAILBRIDGE_TRANSACTIONAL', 'log'),
+        // Marketing lane default provider.
         'marketing' => env('MAILBRIDGE_MARKETING', 'array'),
     ],
 
+    // Optional fallback provider chain per lane.
+    // ENV format: comma-separated provider keys, for example: postmark,resend
     'fallbacks' => [
         'transactional' => array_filter(explode(',', env('MAILBRIDGE_TRANSACTIONAL_FALLBACKS', ''))),
         'marketing' => array_filter(explode(',', env('MAILBRIDGE_MARKETING_FALLBACKS', ''))),
     ],
 
+    // Global sender used when a transactional message does not call from().
     'from' => [
+        // Sender email address. Example: hello@example.com
         'address' => env('MAIL_FROM_ADDRESS'),
+        // Sender display name. Example: Example App
         'name' => env('MAIL_FROM_NAME'),
     ],
 
+    // Behavior when a selected provider does not support a requested feature.
+    // Possible values:
+    // - throw: throw an exception (default)
+    // - ignore: silently ignore unsupported operations
     'unsupported' => env('MAILBRIDGE_UNSUPPORTED', 'throw'),
 
+    // Template alias map used by template('alias').
+    // Rule: mapping values must be present and non-empty for the selected provider.
+    // Value type depends on provider: string or int.
     'templates' => [
         // 'welcome' => ['sendgrid' => 'd-template', 'ses' => 'welcome', 'brevo' => 123, 'postmark' => 'welcome-alias', 'mailchimp' => 'welcome-template', 'mailgun' => 'welcome', 'mailjet' => 123456],
     ],
 
+    // Marketing list/group alias map used by list('alias').
+    // Value format is provider-specific (numeric ids, audience ids, or typed values like kit tag:123).
     'lists' => [
         // 'signup' => ['brevo' => 456, 'mailchimp' => 'audience-id', 'kit' => 'tag:123', 'mailerlite' => 'group-id', 'mailjet' => 789],
     ],
 
+    // Runtime provider credentials/options.
+    // Only application-level values belong here.
     'providers' => [
-        'log' => [
-            'driver' => 'log',
-            'sdk' => null,
-            'version' => null,
-            'install' => null,
-            'capabilities' => ['transactional.raw', 'transactional.templates', 'marketing.subscribers', 'marketing.campaigns'],
-        ],
-        'array' => [
-            'driver' => 'array',
-            'sdk' => null,
-            'version' => null,
-            'install' => null,
-            'capabilities' => ['transactional.raw', 'transactional.templates', 'marketing.subscribers', 'marketing.campaigns'],
-        ],
         'sendgrid' => [
-            'driver' => 'sendgrid',
-            'sdk' => 'sendgrid/sendgrid',
-            'version' => '8.1.11',
-            'install' => 'composer require sendgrid/sendgrid:8.1.11',
+            // ENV: SENDGRID_API_KEY
             'api_key' => env('SENDGRID_API_KEY'),
+            // ENV: SENDGRID_MARKETING_SENDER_ID (needed for marketing campaigns)
             'marketing_sender_id' => env('SENDGRID_MARKETING_SENDER_ID'),
-            'capabilities' => [
-                'transactional.raw',
-                'transactional.templates',
-                'transactional.tags',
-                'transactional.metadata',
-                'marketing.contacts',
-                'marketing.lists',
-                'marketing.subscribers.lookup',
-                'marketing.subscribers.delete',
-                'marketing.campaigns',
-            ],
         ],
+
         'ses' => [
-            'driver' => 'ses',
-            'sdk' => 'aws/aws-sdk-php',
-            'version' => '3.379.0',
-            'install' => 'composer require aws/aws-sdk-php:3.379.0',
+            // ENV: AWS_ACCESS_KEY_ID
             'key' => env('AWS_ACCESS_KEY_ID'),
+            // ENV: AWS_SECRET_ACCESS_KEY
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            // ENV: AWS_DEFAULT_REGION (example: us-east-1)
             'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-            'capabilities' => [
-                'transactional.raw',
-                'transactional.templates',
-                'transactional.tags',
-                'transactional.metadata',
-            ],
         ],
+
         'brevo' => [
-            'driver' => 'brevo',
-            'sdk' => 'getbrevo/brevo-php',
-            'version' => '2.0.14',
-            'install' => 'composer require getbrevo/brevo-php:2.0.14',
+            // ENV: BREVO_API_KEY
             'api_key' => env('BREVO_API_KEY'),
-            'capabilities' => [
-                'transactional.raw',
-                'transactional.templates',
-                'transactional.tags',
-                'marketing.contacts',
-                'marketing.lists',
-                'marketing.subscribers.lookup',
-                'marketing.subscribers.delete',
-                'marketing.campaigns',
-                'webhooks.transactional',
-                'webhooks.marketing',
-            ],
         ],
+
         'mailersend' => [
-            'driver' => 'mailersend',
-            'sdk' => 'mailersend/laravel-driver',
-            'version' => '3.1.0',
-            'install' => 'composer require mailersend/laravel-driver:3.1.0',
+            // ENV: MAILERSEND_API_KEY
             'api_key' => env('MAILERSEND_API_KEY'),
-            'capabilities' => ['transactional.raw', 'transactional.templates', 'transactional.tags'],
         ],
+
         'resend' => [
-            'driver' => 'resend',
-            'sdk' => 'resend/resend-php',
-            'version' => '1.1.0',
-            'install' => 'composer require resend/resend-php:1.1.0',
+            // ENV: RESEND_API_KEY
             'api_key' => env('RESEND_API_KEY'),
-            'capabilities' => ['transactional.raw', 'transactional.templates', 'transactional.tags'],
         ],
+
         'postmark' => [
-            'driver' => 'postmark',
-            'sdk' => 'wildbit/postmark-php',
-            'version' => '7.0.0',
-            'install' => 'composer require wildbit/postmark-php:7.0.0',
+            // ENV: POSTMARK_SERVER_TOKEN
             'server_token' => env('POSTMARK_SERVER_TOKEN'),
-            'capabilities' => [
-                'transactional.raw',
-                'transactional.templates',
-                'transactional.metadata',
-                'transactional.message_streams',
-                'webhooks.transactional',
-            ],
         ],
+
         'mailerlite' => [
-            'driver' => 'mailerlite',
-            'sdk' => 'mailerlite/mailerlite-php',
-            'version' => '1.0.5',
-            'install' => 'composer require mailerlite/mailerlite-php:1.0.5',
+            // ENV: MAILERLITE_API_KEY
             'api_key' => env('MAILERLITE_API_KEY'),
-            'capabilities' => [
-                'marketing.subscribers',
-                'marketing.groups',
-                'marketing.fields',
-                'marketing.subscribers.lookup',
-                'marketing.subscribers.delete',
-                'marketing.campaigns',
-                'webhooks.marketing',
-            ],
         ],
+
         'mailchimp' => [
-            'driver' => 'mailchimp',
-            'sdk' => 'mailchimp/marketing',
-            'version' => '3.0.80',
-            'sdk_packages' => [
-                'mailchimp/marketing' => '3.0.80',
-                'mailchimp/transactional' => '1.4.1',
-            ],
-            'install' => 'composer require mailchimp/marketing:3.0.80 mailchimp/transactional:1.4.1',
+            // ENV: MAILCHIMP_API_KEY
             'api_key' => env('MAILCHIMP_API_KEY'),
+            // ENV: MAILCHIMP_SERVER_PREFIX (example: us1)
             'server' => env('MAILCHIMP_SERVER_PREFIX'),
+            // ENV: MAILCHIMP_AUDIENCE_ID
             'audience_id' => env('MAILCHIMP_AUDIENCE_ID'),
+            // ENV: MAILCHIMP_TRANSACTIONAL_API_KEY
             'transactional_api_key' => env('MAILCHIMP_TRANSACTIONAL_API_KEY'),
-            'capabilities' => [
-                'transactional.raw',
-                'transactional.templates',
-                'transactional.tags',
-                'transactional.metadata',
-                'marketing.contacts',
-                'marketing.lists',
-                'marketing.subscribers.lookup',
-                'marketing.subscribers.delete',
-                'marketing.campaigns',
-            ],
         ],
+
         'kit' => [
-            'driver' => 'kit',
-            'sdk' => 'convertkit/convertkitapi',
-            'version' => '2.4',
-            'install' => 'composer require convertkit/convertkitapi:2.4',
+            // ENV: KIT_API_KEY
             'api_key' => env('KIT_API_KEY'),
-            'capabilities' => [
-                'marketing.contacts',
-                'marketing.tags',
-                'marketing.forms',
-                'marketing.sequences',
-                'marketing.subscribers.lookup',
-                'marketing.campaigns',
-            ],
         ],
+
         'mailgun' => [
-            'driver' => 'mailgun',
-            'sdk' => 'mailgun/mailgun-php',
-            'version' => '4.4.0',
-            'install' => 'composer require mailgun/mailgun-php:4.4.0 symfony/http-client:7.4.8 nyholm/psr7:1.8.2',
+            // ENV: MAILGUN_API_KEY
             'api_key' => env('MAILGUN_API_KEY'),
+            // ENV: MAILGUN_DOMAIN (example: mg.example.com)
             'domain' => env('MAILGUN_DOMAIN'),
-            'capabilities' => [
-                'transactional.raw',
-                'transactional.templates',
-                'transactional.tags',
-                'transactional.metadata',
-                'webhooks.transactional',
-            ],
         ],
+
         'mailjet' => [
-            'driver' => 'mailjet',
-            'sdk' => 'mailjet/mailjet-apiv3-php',
-            'version' => '1.6.6',
-            'install' => 'composer require mailjet/mailjet-apiv3-php:1.6.6',
+            // ENV: MAILJET_API_KEY
             'api_key' => env('MAILJET_API_KEY'),
+            // ENV: MAILJET_SECRET_KEY
             'secret_key' => env('MAILJET_SECRET_KEY'),
-            'capabilities' => [
-                'transactional.raw',
-                'transactional.templates',
-                'transactional.metadata',
-                'marketing.contacts',
-                'marketing.lists',
-                'marketing.subscribers.lookup',
-                'marketing.subscribers.delete',
-                'marketing.campaigns',
-            ],
         ],
     ],
 ];

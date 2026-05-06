@@ -2,6 +2,7 @@
 
 namespace Ashraful19\LaravelMailbridge\Commands;
 
+use Ashraful19\LaravelMailbridge\Support\ProviderCatalog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
 
@@ -14,7 +15,7 @@ final class RemoveProviderCommand extends Command
     public function handle(): int
     {
         $provider = (string) $this->argument('provider');
-        $config = config("mailbridge.providers.{$provider}", []);
+        $config = ProviderCatalog::all()[$provider] ?? [];
         $sdks = array_keys((array) ($config['sdk_packages'] ?? []));
         $sdks = $sdks !== [] ? $sdks : array_filter([(string) ($config['sdk'] ?? '')]);
 

@@ -5,7 +5,8 @@ namespace Ashraful19\LaravelMailbridge;
 use Ashraful19\LaravelMailbridge\Data\Address;
 use Ashraful19\LaravelMailbridge\Data\SendResult;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
-use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
+use Ashraful19\LaravelMailbridge\Exceptions\MissingTransactionalRecipientException;
+use Ashraful19\LaravelMailbridge\Exceptions\TemplatePayloadConflictException;
 use Illuminate\Mail\Mailable;
 
 final class TransactionalMail
@@ -191,15 +192,15 @@ final class TransactionalMail
     private function validate(): void
     {
         if ($this->message->to === []) {
-            throw new MailbridgeValidationException('Transactional email needs at least one recipient.');
+            throw MissingTransactionalRecipientException::make();
         }
 
         if ($this->message->template !== null && $this->message->templateId !== null) {
-            throw new MailbridgeValidationException('Use either template() or templateId(), not both.');
+            throw TemplatePayloadConflictException::templateAndTemplateId();
         }
 
         if (($this->message->template !== null || $this->message->templateId !== null) && $this->message->mailable !== null) {
-            throw new MailbridgeValidationException('Template send cannot also send a Laravel Mailable.');
+            throw TemplatePayloadConflictException::templateWithMailable();
         }
 
         foreach (array_keys($this->message->providerData) as $provider) {

@@ -30,6 +30,8 @@ Configure aliases once:
 ],
 ```
 
+Template alias mappings are defined in config; use `env(...)` there only if your deployment policy requires it.
+
 ## Direct Provider Template ID
 
 ```php
