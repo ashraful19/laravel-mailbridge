@@ -39,6 +39,7 @@ export default {
             {
                 text: 'Operations',
                 items: [
+                    { text: 'Exception Handling', link: '/guide/exceptions' },
                     { text: 'Testing', link: '/guide/testing' },
                     { text: 'Security', link: '/guide/security' },
                     { text: 'Troubleshooting', link: '/guide/troubleshooting' },
