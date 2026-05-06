@@ -43,7 +43,11 @@ final class InstallProviderCommand extends Command
         }
 
         $this->components->info("Running: {$config['install']}");
-        $result = Process::timeout(null)->tty(false)->run($config['install']);
+        $pending = Process::tty(false);
+        $pending = method_exists($pending, 'forever')
+            ? $pending->forever()
+            : $pending->timeout(PHP_INT_MAX);
+        $result = $pending->run($config['install']);
 
         $this->output->write($result->output());
         $this->output->write($result->errorOutput());
