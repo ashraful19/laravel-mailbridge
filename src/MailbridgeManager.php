@@ -14,8 +14,11 @@ use Ashraful19\LaravelMailbridge\Data\Subscriber;
 use Ashraful19\LaravelMailbridge\Data\SubscriberRecord;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeException;
+use Ashraful19\LaravelMailbridge\Exceptions\MissingTemplateMappingException;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
 use Ashraful19\LaravelMailbridge\Exceptions\ProviderTransientException;
+use Ashraful19\LaravelMailbridge\Exceptions\UnknownDriverException;
+use Ashraful19\LaravelMailbridge\Exceptions\UnknownProviderException;
 use Ashraful19\LaravelMailbridge\Exceptions\UnsupportedMailbridgeFeature;
 use Ashraful19\LaravelMailbridge\Providers\ArrayProvider;
 use Ashraful19\LaravelMailbridge\Providers\BrevoProvider;
@@ -30,6 +33,7 @@ use Ashraful19\LaravelMailbridge\Providers\PostmarkProvider;
 use Ashraful19\LaravelMailbridge\Providers\ResendProvider;
 use Ashraful19\LaravelMailbridge\Providers\SendgridProvider;
 use Ashraful19\LaravelMailbridge\Providers\SesProvider;
+use Ashraful19\LaravelMailbridge\Support\ProviderCatalog;
 use Illuminate\Contracts\Container\Container;
 use PHPUnit\Framework\Assert;
 
@@ -166,7 +170,16 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
 
     public function providerMetadata(): array
     {
-        return (array) $this->app['config']->get('mailbridge.providers', []);
+        $metadata = ProviderCatalog::all();
+        $runtime = (array) $this->app['config']->get('mailbridge.providers', []);
+
+        foreach ($metadata as $name => $provider) {
+            $appConfig = (array) ($runtime[$name] ?? []);
+            $appOnly = array_diff_key($appConfig, $provider);
+            $metadata[$name] = array_replace($provider, $appOnly);
+        }
+
+        return $metadata;
     }
 
     public function providerConfig(string $provider): array
@@ -174,7 +187,7 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
         $config = $this->providerMetadata()[$provider] ?? null;
 
         if ($config === null) {
-            throw new MailbridgeValidationException("Unknown Mailbridge provider [{$provider}].");
+            throw UnknownProviderException::make($provider);
         }
 
         return $config;
@@ -205,8 +218,8 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
 
         $templateId = $this->app['config']->get("mailbridge.templates.{$message->template}.{$provider}");
 
-        if ($templateId === null) {
-            throw new MailbridgeValidationException("Missing template mapping [{$message->template}] for provider [{$provider}].");
+        if (! filled($templateId)) {
+            throw MissingTemplateMappingException::forProvider($message->template, $provider);
         }
 
         $message->templateId = $templateId;
@@ -266,7 +279,7 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
             'mailgun' => new MailgunProvider($provider, $config, $this->app),
             'mailjet' => new MailjetProvider($provider, $config, $this->app),
             'mailerlite' => new MailerliteProvider($provider, $config, $this->app),
-            default => throw new MailbridgeValidationException("Unknown Mailbridge driver [{$config['driver']}]."),
+            default => throw UnknownDriverException::make((string) $config['driver']),
         };
     }
 

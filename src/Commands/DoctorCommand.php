@@ -2,6 +2,7 @@
 
 namespace Ashraful19\LaravelMailbridge\Commands;
 
+use Ashraful19\LaravelMailbridge\Support\ProviderCatalog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Process;
@@ -15,9 +16,12 @@ final class DoctorCommand extends Command
     public function handle(): int
     {
         $failed = false;
-        $providers = config('mailbridge.providers', []);
+        $runtimeProviders = (array) config('mailbridge.providers', []);
+        $providers = ProviderCatalog::all();
 
-        foreach ($providers as $name => $provider) {
+        foreach ($providers as $name => $metadata) {
+            $appConfig = (array) ($runtimeProviders[$name] ?? []);
+            $provider = array_replace($metadata, array_diff_key($appConfig, $metadata));
             $sdkPackages = $provider['sdk_packages'] ?? null;
             $sdkPackages = is_array($sdkPackages)
                 ? $sdkPackages
@@ -71,13 +75,13 @@ final class DoctorCommand extends Command
         foreach (['transactional', 'marketing'] as $lane) {
             $default = config("mailbridge.default.{$lane}");
 
-            if (! isset($providers[$default])) {
+            if (! isset($providers[(string) $default])) {
                 $failed = true;
                 $this->components->error("Default {$lane} provider [{$default}] is not configured.");
             }
 
             foreach (config("mailbridge.fallbacks.{$lane}", []) as $fallback) {
-                if (! isset($providers[$fallback])) {
+                if (! isset($providers[(string) $fallback])) {
                     $failed = true;
                     $this->components->error("Fallback {$lane} provider [{$fallback}] is not configured.");
                 }

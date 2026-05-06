@@ -4,6 +4,8 @@ namespace Ashraful19\LaravelMailbridge\Support;
 
 use Ashraful19\LaravelMailbridge\Data\Address;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
+use Ashraful19\LaravelMailbridge\Exceptions\MissingFromAddressException;
+use Ashraful19\LaravelMailbridge\Exceptions\MissingTransactionalContentException;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Mail\Mailable;
@@ -31,11 +33,11 @@ final readonly class TransactionalMessageNormalizer
         }
 
         if ($normalized->from === null) {
-            throw new MailbridgeValidationException('Transactional email needs a from address. Configure MAIL_FROM_ADDRESS or call from().');
+            throw MissingFromAddressException::make();
         }
 
         if (! $normalized->isTemplateSend() && $normalized->html === null && $normalized->text === null) {
-            throw new MailbridgeValidationException('Transactional email needs html(), text(), a Laravel Mailable, template(), or templateId().');
+            throw MissingTransactionalContentException::make();
         }
 
         if (! $normalized->isTemplateSend() && $normalized->subject === null) {

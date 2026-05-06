@@ -24,6 +24,7 @@ Source docs:
 - [Hosted templates and provider-specific data](docs/guide/templates.md)
 - [Marketing email](docs/guide/marketing.md)
 - [Response shapes](docs/guide/responses.md)
+- [Exception handling](docs/guide/exceptions.md)
 - [Fallback](docs/guide/fallback.md)
 - [Testing](docs/guide/testing.md)
 - [Security](docs/guide/security.md)
@@ -250,6 +251,23 @@ Marketing email currently implemented in the common API:
 | Switch provider per send | Pass provider name: `MailBridge::transactional('postmark')`. |
 | Control fallback | Use `withFallback()` or `withFallback(false)` per send. |
 | Test safely | Use `MailBridge::fake()` and assertions. |
+
+## Exception Handling
+
+MailBridge throws typed exceptions for common validation and configuration errors.
+All validation-focused exceptions extend `MailbridgeValidationException`, so existing broad catches still work.
+
+| Exception | Trigger |
+| --- | --- |
+| `MissingTransactionalRecipientException` | Transactional send has no `to()` recipient. |
+| `TemplatePayloadConflictException` | `template()` + `templateId()` are both set, or template send is combined with a Laravel `Mailable`. |
+| `MissingTransactionalContentException` | Non-template send has no `html()`, no `text()`, and no mailable content. |
+| `MissingFromAddressException` | No sender address is available from `from()` or `mailbridge.from.address`. |
+| `MissingTemplateMappingException` | `template('alias')` has no usable provider mapping in `mailbridge.templates.<alias>.<provider>`. Empty values are treated as missing. |
+| `UnknownProviderException` | Selected provider key does not exist in `mailbridge.providers`. |
+| `UnknownDriverException` | Provider config uses an unsupported driver value. |
+
+For full guidance and catch examples, see [Exception handling](docs/guide/exceptions.md).
 
 ## License
 

@@ -10,13 +10,8 @@ final class DoctorCommandTest extends TestCase
     {
         config()->set('mailbridge.providers', [
             'sendgrid' => [
-                'driver' => 'sendgrid',
-                'sdk' => null,
-                'version' => null,
-                'install' => null,
                 'api_key' => 'key',
                 'marketing_sender_id' => null,
-                'capabilities' => ['marketing.campaigns'],
             ],
         ]);
         config()->set('mailbridge.default.transactional', 'sendgrid');
@@ -30,14 +25,9 @@ final class DoctorCommandTest extends TestCase
     {
         config()->set('mailbridge.providers', [
             'ses' => [
-                'driver' => 'ses',
-                'sdk' => null,
-                'version' => null,
-                'install' => null,
                 'key' => null,
                 'secret' => null,
                 'region' => null,
-                'capabilities' => ['transactional.raw'],
             ],
         ]);
         config()->set('mailbridge.default.transactional', 'ses');
@@ -51,13 +41,8 @@ final class DoctorCommandTest extends TestCase
     {
         config()->set('mailbridge.providers', [
             'mailjet' => [
-                'driver' => 'mailjet',
-                'sdk' => null,
-                'version' => null,
-                'install' => null,
                 'api_key' => 'key',
                 'secret_key' => null,
-                'capabilities' => ['marketing.campaigns'],
             ],
         ]);
         config()->set('mailbridge.default.transactional', 'mailjet');

@@ -2,6 +2,7 @@
 
 namespace Ashraful19\LaravelMailbridge\Commands;
 
+use Ashraful19\LaravelMailbridge\Support\ProviderCatalog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
 use function Laravel\Prompts\multiselect;
@@ -28,7 +29,7 @@ final class InstallProviderCommand extends Command
 
     private function installProvider(string $provider): bool
     {
-        $config = config("mailbridge.providers.{$provider}");
+        $config = ProviderCatalog::all()[$provider] ?? null;
 
         if (! is_array($config)) {
             $this->error("Unknown provider [{$provider}].");
@@ -66,7 +67,7 @@ final class InstallProviderCommand extends Command
             return [$provider];
         }
 
-        $providers = collect(config('mailbridge.providers', []))
+        $providers = collect(ProviderCatalog::all())
             ->filter(fn (array $provider): bool => filled($provider['install'] ?? null))
             ->mapWithKeys(fn (array $provider, string $name): array => [
                 $name => "{$name} ({$provider['sdk']}:{$provider['version']})",

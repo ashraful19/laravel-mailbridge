@@ -3,6 +3,10 @@
 namespace Ashraful19\LaravelMailbridge\Tests\Unit;
 
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
+use Ashraful19\LaravelMailbridge\Exceptions\MissingTemplateMappingException;
+use Ashraful19\LaravelMailbridge\Exceptions\MissingTransactionalRecipientException;
+use Ashraful19\LaravelMailbridge\Exceptions\TemplatePayloadConflictException;
+use Illuminate\Mail\Mailable;
 use Ashraful19\LaravelMailbridge\Facades\Mailbridge;
 use Ashraful19\LaravelMailbridge\MailbridgeManager;
 use Ashraful19\LaravelMailbridge\Tests\TestCase;
@@ -24,12 +28,55 @@ final class TransactionalMailTest extends TestCase
 
     public function test_template_and_template_id_are_mutually_exclusive(): void
     {
-        $this->expectException(MailbridgeValidationException::class);
+        $this->expectException(TemplatePayloadConflictException::class);
 
         Mailbridge::transactional()
             ->to('a@example.com')
             ->template('welcome')
             ->templateId('direct-id')
+            ->send();
+    }
+
+    public function test_missing_recipient_throws_specific_exception(): void
+    {
+        $this->expectException(MissingTransactionalRecipientException::class);
+
+        Mailbridge::transactional()
+            ->subject('Hello')
+            ->text('Hi')
+            ->send();
+    }
+
+    public function test_template_and_mailable_conflict_throws_specific_exception(): void
+    {
+        $this->expectException(TemplatePayloadConflictException::class);
+
+        Mailbridge::transactional()
+            ->to('a@example.com')
+            ->template('welcome')
+            ->send(new class extends Mailable {});
+    }
+
+    public function test_missing_template_mapping_throws_specific_exception(): void
+    {
+        Mailbridge::fake();
+        $this->expectException(MissingTemplateMappingException::class);
+
+        Mailbridge::transactional()
+            ->to('a@example.com')
+            ->template('welcome')
+            ->send();
+    }
+
+    public function test_empty_template_mapping_is_treated_as_missing(): void
+    {
+        Mailbridge::fake();
+        config()->set('mailbridge.templates.welcome.array', '');
+        $this->expectException(MissingTemplateMappingException::class);
+
+        Mailbridge::transactional()
+            ->to('a@example.com')
+            ->template('welcome')
             ->send();
     }
 
