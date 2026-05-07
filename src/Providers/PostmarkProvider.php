@@ -28,7 +28,7 @@ final class PostmarkProvider extends AbstractProvider implements TransactionalPr
             throw $this->missingSdk();
         }
 
-        $message = $this->normalizer()->normalize($message);
+        $message = $this->normalizer()->normalize($message, $this->config);
 
         try {
             $response = $message->isTemplateSend()

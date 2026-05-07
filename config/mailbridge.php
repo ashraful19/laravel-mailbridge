@@ -46,6 +46,8 @@ return [
 
     // Runtime provider credentials/options.
     // Only application-level values belong here.
+    // Optional per-provider default sender:
+    // 'from' => ['address' => 'billing@example.com', 'name' => 'Billing Team']
     'providers' => [
         'sendgrid' => [
             // ENV: SENDGRID_API_KEY

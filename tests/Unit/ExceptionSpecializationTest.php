@@ -39,4 +39,22 @@ final class ExceptionSpecializationTest extends TestCase
         $this->expectException(MissingFromAddressException::class);
         (new TransactionalMessageNormalizer($this->app))->normalize($message);
     }
+
+    public function test_provider_from_address_is_used_before_global_from(): void
+    {
+        config()->set('mailbridge.from.address', 'global@example.com');
+        config()->set('mailbridge.from.name', 'Global Sender');
+
+        $message = new TransactionalMessage();
+        $message->to[] = \Ashraful19\LaravelMailbridge\Data\Address::make('a@example.com', 'A');
+        $message->subject = 'Hello';
+        $message->text = 'Hi';
+
+        $normalized = (new TransactionalMessageNormalizer($this->app))->normalize($message, [
+            'from' => ['address' => 'provider@example.com', 'name' => 'Provider Sender'],
+        ]);
+
+        $this->assertSame('provider@example.com', $normalized->from?->email);
+        $this->assertSame('Provider Sender', $normalized->from?->name);
+    }
 }

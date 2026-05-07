@@ -26,7 +26,7 @@ final class ResendProvider extends AbstractProvider implements TransactionalProv
             throw $this->missingSdk();
         }
 
-        $message = $this->normalizer()->normalize($message);
+        $message = $this->normalizer()->normalize($message, $this->config);
         $payload = $this->payload($message);
 
         try {

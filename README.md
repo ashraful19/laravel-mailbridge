@@ -64,6 +64,23 @@ MAILJET_API_KEY=
 MAILJET_SECRET_KEY=
 ```
 
+Optional: set provider-level sender defaults in `config/mailbridge.php` (for providers that should use a different sender than global `MAIL_FROM_*`):
+
+```php
+'providers' => [
+    'postmark' => [
+        'server_token' => env('POSTMARK_SERVER_TOKEN'),
+        'from' => [
+            'address' => env('POSTMARK_FROM_ADDRESS'),
+            'name' => env('POSTMARK_FROM_NAME'),
+        ],
+    ],
+],
+```
+
+Sender precedence is:
+`->from(...)` at runtime -> `mailbridge.providers.<provider>.from` -> `mailbridge.from` (`MAIL_FROM_*`).
+
 Configure template and list mappings in `config/mailbridge.php` (`templates`, `lists`).
 
 ## Basic Usage
@@ -264,7 +281,7 @@ All validation-focused exceptions extend `MailbridgeValidationException`, so exi
 | `MissingTransactionalRecipientException` | Transactional send has no `to()` recipient. |
 | `TemplatePayloadConflictException` | `template()` + `templateId()` are both set, or template send is combined with a Laravel `Mailable`. |
 | `MissingTransactionalContentException` | Non-template send has no `html()`, no `text()`, and no mailable content. |
-| `MissingFromAddressException` | No sender address is available from `from()` or `mailbridge.from.address`. |
+| `MissingFromAddressException` | No sender address is available from `from()`, `mailbridge.providers.<provider>.from.address`, or `mailbridge.from.address`. |
 | `MissingTemplateMappingException` | `template('alias')` has no usable provider mapping in `mailbridge.templates.<alias>.<provider>`. Empty values are treated as missing. |
 | `UnknownProviderException` | Selected provider key does not exist in `mailbridge.providers`. |
 | `UnknownDriverException` | Provider config uses an unsupported driver value. |

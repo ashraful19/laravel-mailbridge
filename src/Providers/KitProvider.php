@@ -83,6 +83,8 @@ final class KitProvider extends AbstractProvider implements MarketingProvider
 
     public function createCampaign(Campaign $campaign): MarketingResult
     {
+        $from = $this->campaignFrom($campaign->fromEmail, $campaign->fromName);
+
         try {
             $broadcast = $this->kit()->create_broadcast(
                 subject: (string) $campaign->subject,
@@ -90,7 +92,7 @@ final class KitProvider extends AbstractProvider implements MarketingProvider
                 description: $campaign->name,
                 public: (bool) ($campaign->options['public'] ?? false),
                 send_at: $this->dateOption($campaign->options['send_at'] ?? null),
-                email_address: $campaign->fromEmail ?? '',
+                email_address: (string) ($from['email'] ?? ''),
                 email_template_id: (string) ($campaign->options['email_template_id'] ?? ''),
                 preview_text: (string) ($campaign->options['preview_text'] ?? ''),
                 subscriber_filter: $this->subscriberFilter($campaign),
@@ -164,11 +166,13 @@ final class KitProvider extends AbstractProvider implements MarketingProvider
 
     public function campaignPayload(Campaign $campaign): array
     {
+        $from = $this->campaignFrom($campaign->fromEmail, $campaign->fromName);
+
         return [
             'subject' => $campaign->subject,
             'content' => $campaign->html,
             'description' => $campaign->name,
-            'email_address' => $campaign->fromEmail,
+            'email_address' => $from['email'],
             'subscriber_filter' => $this->subscriberFilter($campaign),
         ];
     }

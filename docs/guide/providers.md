@@ -3,6 +3,24 @@
 Use this page for provider-specific setup, mapping rules, and caveats.  
 Core package behavior stays in the main guides.
 
+## Provider-Level Sender Defaults
+
+Any provider can define:
+
+```php
+'providers' => [
+    'provider-key' => [
+        // provider credentials...
+        'from' => [
+            'address' => 'team@example.com',
+            'name' => 'Team Name',
+        ],
+    ],
+],
+```
+
+Sender precedence is runtime `from()` -> provider `from` -> global `mailbridge.from`.
+
 ## SendGrid
 
 - Lanes: transactional + marketing

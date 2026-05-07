@@ -31,7 +31,7 @@ See [Provider Guides](/guide/providers) for provider-specific setup, mappings, a
 
 ## Configure Environment Variables
 
-Set Laravel's normal mail sender first. MailBridge uses this as the default sender for SDK-based transactional sends:
+Set Laravel's normal mail sender first. MailBridge uses this as the global sender default:
 
 ```dotenv
 MAIL_FROM_ADDRESS=hello@example.com
@@ -72,6 +72,23 @@ MAILJET_SECRET_KEY=
 ```
 
 You only need env vars for providers you actually use.
+
+Optional: set provider-level sender defaults when one provider should use a different sender:
+
+```php
+'providers' => [
+    'postmark' => [
+        'server_token' => env('POSTMARK_SERVER_TOKEN'),
+        'from' => [
+            'address' => env('POSTMARK_FROM_ADDRESS'),
+            'name' => env('POSTMARK_FROM_NAME'),
+        ],
+    ],
+],
+```
+
+Sender precedence:
+`->from(...)` at runtime -> `mailbridge.providers.<provider>.from` -> global `mailbridge.from` (`MAIL_FROM_*`).
 
 ## Configure Templates and Lists
 

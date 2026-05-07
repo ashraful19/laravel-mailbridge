@@ -30,7 +30,7 @@ final class MailersendProvider extends AbstractProvider implements Transactional
             throw $this->missingSdk();
         }
 
-        $message = $this->normalizer()->normalize($message);
+        $message = $this->normalizer()->normalize($message, $this->config);
         $params = $this->emailParams($message);
 
         try {

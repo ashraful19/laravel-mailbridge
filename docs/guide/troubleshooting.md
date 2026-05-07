@@ -30,6 +30,14 @@ For the full exception map and recommended catch patterns, see [Exception handli
 
 For provider-specific setup and behavior differences, see [Provider Guides](/guide/providers).
 
+## Missing Sender Address
+
+If you get `MissingFromAddressException`, configure sender defaults in this order:
+
+1. Set sender at runtime with `from(...)`.
+2. Or set provider-level sender in `mailbridge.providers.<provider>.from.address` (and optional `name`).
+3. Or set global sender in `mailbridge.from.address` / `mailbridge.from.name` (`MAIL_FROM_*`).
+
 ## Template and List Mappings
 
 If `template('welcome')` fails, add provider ids in `config/mailbridge.php`:

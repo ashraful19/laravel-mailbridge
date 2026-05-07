@@ -24,6 +24,7 @@ use Ashraful19\LaravelMailbridge\Providers\PostmarkProvider;
 use Ashraful19\LaravelMailbridge\Providers\ResendProvider;
 use Ashraful19\LaravelMailbridge\Providers\SendgridProvider;
 use Ashraful19\LaravelMailbridge\Providers\SesProvider;
+use Ashraful19\LaravelMailbridge\Support\TransactionalMessageNormalizer;
 use Ashraful19\LaravelMailbridge\Tests\TestCase;
 use Illuminate\Mail\Mailable;
 use ReflectionProperty;
@@ -393,6 +394,91 @@ final class ProviderAdapterTest extends TestCase
         $manager->sendTransactional($this->message(), 'broken', true);
     }
 
+    public function test_transactional_provider_level_from_used_when_message_from_missing(): void
+    {
+        $message = new TransactionalMessage();
+        $message->to[] = Address::make('a@example.com', 'A');
+        $message->subject = 'Hello';
+        $message->html = '<p>Hello</p>';
+
+        $provider = new CapturingFromProvider(
+            'provider-a',
+            $this->app,
+            ['from' => ['address' => 'provider@example.com', 'name' => 'Provider Sender']],
+            false
+        );
+
+        $result = $provider->send($message);
+
+        $this->assertSame('Provider Sender <provider@example.com>', $result->metadata['from']);
+    }
+
+    public function test_transactional_fallback_uses_each_provider_specific_from(): void
+    {
+        config()->set('mailbridge.fallbacks.transactional', ['provider-b']);
+        config()->set('mailbridge.from.address', 'global@example.com');
+        config()->set('mailbridge.from.name', 'Global Sender');
+
+        $manager = app(MailbridgeManager::class);
+        $this->setResolvedProviders($manager, [
+            'provider-a' => new CapturingFromProvider(
+                'provider-a',
+                $this->app,
+                ['from' => ['address' => 'a@example.com', 'name' => 'Provider A']],
+                true
+            ),
+            'provider-b' => new CapturingFromProvider(
+                'provider-b',
+                $this->app,
+                ['from' => ['address' => 'b@example.com', 'name' => 'Provider B']],
+                false
+            ),
+        ]);
+
+        $message = new TransactionalMessage();
+        $message->to[] = Address::make('a@example.com', 'A');
+        $message->subject = 'Hello';
+        $message->html = '<p>Hello</p>';
+
+        $result = $manager->sendTransactional($message, 'provider-a', true);
+
+        $this->assertSame('provider-b', $result->provider);
+        $this->assertSame('Provider B <b@example.com>', $result->metadata['from']);
+    }
+
+    public function test_marketing_campaign_sender_falls_back_to_provider_and_global_defaults(): void
+    {
+        config()->set('mailbridge.from.address', 'global@example.com');
+        config()->set('mailbridge.from.name', 'Global Sender');
+
+        $providerOnly = (new MailjetProvider('mailjet', [
+            'api_key' => 'key',
+            'secret_key' => 'secret',
+            'from' => ['address' => 'provider@example.com', 'name' => 'Provider Sender'],
+        ], $this->app))->campaignPayload(
+            Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->list(123)
+        );
+
+        $globalOnly = (new MailjetProvider('mailjet', ['api_key' => 'key', 'secret_key' => 'secret'], $this->app))->campaignPayload(
+            Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->list(123)
+        );
+
+        $explicit = (new MailjetProvider('mailjet', [
+            'api_key' => 'key',
+            'secret_key' => 'secret',
+            'from' => ['address' => 'provider@example.com', 'name' => 'Provider Sender'],
+        ], $this->app))->campaignPayload(
+            Campaign::make('Launch')->subject('Hello')->html('<p>Hello</p>')->from('explicit@example.com', 'Explicit Sender')->list(123)
+        );
+
+        $this->assertSame('provider@example.com', $providerOnly['SenderEmail']);
+        $this->assertSame('Provider Sender', $providerOnly['Sender']);
+        $this->assertSame('global@example.com', $globalOnly['SenderEmail']);
+        $this->assertSame('Global Sender', $globalOnly['Sender']);
+        $this->assertSame('explicit@example.com', $explicit['SenderEmail']);
+        $this->assertSame('Explicit Sender', $explicit['Sender']);
+    }
+
     private function message(): TransactionalMessage
     {
         $message = new TransactionalMessage();
@@ -587,5 +673,38 @@ final class BrokenProvider implements ProviderAdapter, TransactionalProvider
         }
 
         throw new MailbridgeException('Validation failure.');
+    }
+}
+
+final class CapturingFromProvider implements ProviderAdapter, TransactionalProvider
+{
+    public function __construct(
+        private readonly string $providerName,
+        private readonly \Illuminate\Contracts\Container\Container $app,
+        private readonly array $config,
+        private readonly bool $transientFailure,
+    ) {}
+
+    public function name(): string
+    {
+        return $this->providerName;
+    }
+
+    public function supports(string $feature): bool
+    {
+        return true;
+    }
+
+    public function send(TransactionalMessage $message): SendResult
+    {
+        $normalized = (new TransactionalMessageNormalizer($this->app))->normalize($message, $this->config);
+
+        if ($this->transientFailure) {
+            throw new ProviderTransientException('Temporary failure.');
+        }
+
+        return new SendResult($this->providerName, 'ok', [
+            'from' => (string) $normalized->from?->name . ' <' . (string) $normalized->from?->email . '>',
+        ]);
     }
 }

@@ -27,7 +27,7 @@ final class MailgunProvider extends AbstractProvider implements TransactionalPro
             throw $this->missingSdk();
         }
 
-        $message = $this->normalizer()->normalize($message);
+        $message = $this->normalizer()->normalize($message, $this->config);
         $payload = $this->payload($message);
 
         try {

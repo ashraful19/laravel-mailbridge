@@ -78,6 +78,16 @@ MailBridge::transactional('postmark')
     ->send();
 ```
 
+## Sender Resolution
+
+For transactional sends, sender resolution order is:
+
+1. `from()` set on the message at runtime.
+2. `mailbridge.providers.<provider>.from.address` / `name`.
+3. Global `mailbridge.from.address` / `name` (typically from `MAIL_FROM_*`).
+
+If none resolves, MailBridge throws `MissingFromAddressException`.
+
 ## Return Type
 
 `send()` returns `SendResult`:

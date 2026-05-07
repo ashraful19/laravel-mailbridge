@@ -39,6 +39,14 @@ abstract class AbstractProvider
         return new TransactionalMessageNormalizer($this->app);
     }
 
+    protected function campaignFrom(?string $email, ?string $name): array
+    {
+        return [
+            'email' => $email ?? $this->config['from']['address'] ?? $this->app['config']->get('mailbridge.from.address'),
+            'name' => $name ?? $this->config['from']['name'] ?? $this->app['config']->get('mailbridge.from.name'),
+        ];
+    }
+
     protected function requireConfig(string $key): string
     {
         $value = $this->config[$key] ?? null;

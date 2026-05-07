@@ -56,6 +56,12 @@ MailBridge::marketing('brevo')->deleteCampaign($campaignId);
 
 Provider-specific mapping details and caveats are in [Provider Guides](/guide/providers).
 
+Campaign sender resolution order:
+
+1. `Campaign::from(...)` at runtime.
+2. `mailbridge.providers.<provider>.from.address` / `name`.
+3. Global `mailbridge.from.address` / `name` (`MAIL_FROM_*`).
+
 ## Provider Override and Fallback
 
 ```php
