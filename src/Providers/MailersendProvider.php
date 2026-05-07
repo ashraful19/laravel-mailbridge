@@ -70,6 +70,9 @@ final class MailersendProvider extends AbstractProvider implements Transactional
 
         if ($message->isTemplateSend()) {
             $params->setTemplateId((string) $message->templateId);
+            if ($message->subject !== null && $message->subject !== '') {
+                $params->setSubject($message->subject);
+            }
             $params->setPersonalization(array_map(
                 fn ($recipient): Personalization => new Personalization($recipient->email, $message->data),
                 $message->to,
