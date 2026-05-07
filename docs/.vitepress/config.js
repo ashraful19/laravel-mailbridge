@@ -17,7 +17,7 @@ export default {
         ],
         sidebar: [
             {
-                text: 'Start Here',
+                text: 'Getting started',
                 items: [
                     { text: 'Installation', link: '/guide/installation' },
                     { text: 'Provider Install', link: '/guide/provider-install' },

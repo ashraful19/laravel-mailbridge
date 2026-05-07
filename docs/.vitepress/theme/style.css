@@ -18,8 +18,12 @@
 }
 
 .VPNav {
-    border-bottom: 1px solid var(--mb-border);
+    border-bottom: 0;
     backdrop-filter: blur(18px);
+}
+
+.VPNav .divider-line {
+    background-color: var(--mb-border);
 }
 
 .VPNavBar.has-sidebar .content,
@@ -154,6 +158,7 @@
 .vp-doc table {
     display: table;
     width: 100%;
+    table-layout: fixed;
     overflow: hidden;
     border: 1px solid var(--mb-border);
     border-radius: 8px;
@@ -162,6 +167,8 @@
 .vp-doc th,
 .vp-doc td {
     vertical-align: top;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .vp-doc th {
@@ -214,6 +221,16 @@
     color: var(--mb-ink);
     font-size: 15px;
     line-height: 1.55;
+}
+
+.VPNavBarSearch .DocSearch-Button {
+    min-width: 160px;
+}
+
+@media (min-width: 960px) {
+    .VPNavBarSearch .DocSearch-Button {
+        min-width: 220px;
+    }
 }
 
 @media (max-width: 780px) {
