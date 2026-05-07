@@ -33,7 +33,7 @@ final class MailchimpProvider extends AbstractProvider implements TransactionalP
             throw $this->missingSdk();
         }
 
-        $message = $this->normalizer()->normalize($message);
+        $message = $this->normalizer()->normalize($message, $this->config);
 
         try {
             $response = $message->isTemplateSend()
@@ -192,6 +192,8 @@ final class MailchimpProvider extends AbstractProvider implements TransactionalP
 
     public function campaignPayload(Campaign $campaign): array
     {
+        $from = $this->campaignFrom($campaign->fromEmail, $campaign->fromName);
+
         return array_replace_recursive([
             'type' => $campaign->options['type'] ?? 'regular',
             'recipients' => [
@@ -200,8 +202,8 @@ final class MailchimpProvider extends AbstractProvider implements TransactionalP
             'settings' => array_filter([
                 'subject_line' => $campaign->subject,
                 'title' => $campaign->name,
-                'from_name' => $campaign->fromName,
-                'reply_to' => $campaign->fromEmail,
+                'from_name' => $from['name'],
+                'reply_to' => $from['email'],
             ], fn (mixed $value): bool => $value !== null && $value !== ''),
         ], $campaign->options['mailchimp'] ?? []);
     }

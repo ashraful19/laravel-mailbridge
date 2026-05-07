@@ -27,7 +27,7 @@ Specialized validation exceptions include:
 | `MissingTransactionalRecipientException` | Transactional send without any `to()` recipient. |
 | `TemplatePayloadConflictException` | Both `template()` and `templateId()` are set, or template send is combined with a Laravel `Mailable`. |
 | `MissingTransactionalContentException` | Non-template send has no `html()`, no `text()`, and no mailable content. |
-| `MissingFromAddressException` | No sender resolved from explicit `from()` and `mailbridge.from.address`. |
+| `MissingFromAddressException` | No sender resolved from explicit `from()`, `mailbridge.providers.<provider>.from.address`, and `mailbridge.from.address`. |
 | `MissingTemplateMappingException` | Missing or empty mapping for `mailbridge.templates.<alias>.<provider>`. |
 | `UnknownProviderException` | Provider key is not defined in `mailbridge.providers`. |
 | `UnknownDriverException` | Provider config has an unsupported `driver`. |

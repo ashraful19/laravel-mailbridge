@@ -35,7 +35,7 @@ final class SendgridProvider extends AbstractProvider implements TransactionalPr
             throw $this->missingSdk();
         }
 
-        $message = $this->normalizer()->normalize($message);
+        $message = $this->normalizer()->normalize($message, $this->config);
         $mail = $this->mail($message);
 
         try {

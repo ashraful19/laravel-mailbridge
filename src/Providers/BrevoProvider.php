@@ -44,7 +44,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
             throw $this->missingSdk();
         }
 
-        $message = $this->normalizer()->normalize($message);
+        $message = $this->normalizer()->normalize($message, $this->config);
         $payload = $this->transactionalPayload($message);
 
         try {
@@ -218,10 +218,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
     public function campaignPayload(Campaign $campaign): array
     {
         $listIds = array_map(fn (string|int $list): int => $this->numericId($list, 'Brevo campaign list id'), $campaign->lists);
-        $from = [
-            'email' => $campaign->fromEmail ?? $this->config['from']['address'] ?? $this->app['config']->get('mailbridge.from.address'),
-            'name' => $campaign->fromName ?? $this->config['from']['name'] ?? $this->app['config']->get('mailbridge.from.name'),
-        ];
+        $from = $this->campaignFrom($campaign->fromEmail, $campaign->fromName);
 
         return array_filter([
             'name' => $campaign->name,

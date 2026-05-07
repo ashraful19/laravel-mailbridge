@@ -15,7 +15,7 @@ final readonly class TransactionalMessageNormalizer
 {
     public function __construct(private Container $app) {}
 
-    public function normalize(TransactionalMessage $message): TransactionalMessage
+    public function normalize(TransactionalMessage $message, array $providerConfig = []): TransactionalMessage
     {
         $normalized = clone $message;
 
@@ -24,11 +24,12 @@ final readonly class TransactionalMessageNormalizer
         }
 
         if ($normalized->from === null) {
-            $from = (array) $this->app['config']->get('mailbridge.from', []);
-            $address = $from['address'] ?? null;
+            $providerFrom = (array) ($providerConfig['from'] ?? []);
+            $globalFrom = (array) $this->app['config']->get('mailbridge.from', []);
+            $address = $providerFrom['address'] ?? $globalFrom['address'] ?? null;
 
             if ($address !== null && $address !== '') {
-                $normalized->from = Address::make($address, $from['name'] ?? null);
+                $normalized->from = Address::make($address, $providerFrom['name'] ?? $globalFrom['name'] ?? null);
             }
         }
 

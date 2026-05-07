@@ -47,7 +47,7 @@ Use this page to decide which provider should handle each lane and which parts o
 | Direct template id | `templateId('...')` | Bypasses config mapping for one send. |
 | Provider-specific data | `dataFor('brevo', [...])` | Provider data overrides common `data()` values. |
 | Recipients | `to()`, `cc()`, `bcc()` | Normalized address objects. |
-| Sender controls | `from()`, `replyTo()` | Falls back to app mail config where needed. |
+| Sender controls | `from()`, `replyTo()` | Sender precedence: runtime `from()` -> provider `mailbridge.providers.<provider>.from` -> global `mailbridge.from`. |
 | Attachments | `attach()`, `attachData()` | Maps file/raw attachments to provider SDK payloads. |
 | Tags/categories | `tag()` | Provider analytics labels where supported. |
 | Metadata | `metadata()` | Safe correlation data for reporting/webhooks. |

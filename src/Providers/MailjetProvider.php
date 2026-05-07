@@ -35,7 +35,7 @@ final class MailjetProvider extends AbstractProvider implements TransactionalPro
             throw $this->missingSdk();
         }
 
-        $message = $this->normalizer()->normalize($message);
+        $message = $this->normalizer()->normalize($message, $this->config);
 
         try {
             $response = $this->mailjetClient('v3.1')->post(Resources::$Email, ['body' => $this->payload($message)]);
@@ -210,11 +210,12 @@ final class MailjetProvider extends AbstractProvider implements TransactionalPro
     public function campaignPayload(Campaign $campaign): array
     {
         $listId = isset($campaign->lists[0]) ? $this->numericId($campaign->lists[0], 'Mailjet campaign list id') : null;
+        $from = $this->campaignFrom($campaign->fromEmail, $campaign->fromName);
 
         return array_filter([
             'Locale' => $campaign->options['locale'] ?? 'en_US',
-            'SenderEmail' => $campaign->fromEmail,
-            'Sender' => $campaign->fromName,
+            'SenderEmail' => $from['email'],
+            'Sender' => $from['name'],
             'Subject' => $campaign->subject,
             'Title' => $campaign->name,
             'ContactsListID' => $listId,

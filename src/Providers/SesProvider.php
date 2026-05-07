@@ -28,7 +28,7 @@ final class SesProvider extends AbstractProvider implements TransactionalProvide
             throw $this->missingSdk();
         }
 
-        $message = $this->normalizer()->normalize($message);
+        $message = $this->normalizer()->normalize($message, $this->config);
 
         try {
             $response = $message->attachments !== []
