@@ -33,6 +33,8 @@ final class KitProvider extends AbstractProvider implements MarketingProvider
             foreach ($subscriber->tags as $tag) {
                 if (is_numeric($tag)) {
                     $this->kit()->tag_subscriber_by_email((int) $tag, $subscriber->email);
+                } else {
+                    $this->app['log']?->warning("Kit provider: non-numeric tag [{$tag}] skipped for [{$subscriber->email}].");
                 }
             }
 

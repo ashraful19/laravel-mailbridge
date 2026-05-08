@@ -246,7 +246,7 @@ final class SendgridProvider extends AbstractProvider implements TransactionalPr
         }
 
         foreach ($message->metadata as $key => $value) {
-            $mail->addCustomArg($key, (string) $value);
+            $mail->addCustomArg($key, is_scalar($value) ? (string) $value : json_encode($value, JSON_THROW_ON_ERROR));
         }
 
         foreach ($message->attachments as $attachment) {
@@ -331,7 +331,7 @@ final class SendgridProvider extends AbstractProvider implements TransactionalPr
     {
         $context = ['provider' => $this->name, 'operation' => $operation, 'status' => $status];
 
-        if ($status === 408 || $status === 409 || $status === 425 || $status === 429 || $status >= 500) {
+        if (ProviderFailureHandler::isTransientStatus($status)) {
             throw new ProviderTransientException("Provider [{$this->name}] failed transiently during [{$operation}].", $context);
         }
 

@@ -5,6 +5,7 @@ namespace Ashraful19\LaravelMailbridge\Providers;
 use Ashraful19\LaravelMailbridge\Contracts\TransactionalProvider;
 use Ashraful19\LaravelMailbridge\Data\SendResult;
 use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
+use Ashraful19\LaravelMailbridge\Exceptions\UnsupportedMailbridgeFeature;
 use Ashraful19\LaravelMailbridge\Support\AddressFormatter;
 use Ashraful19\LaravelMailbridge\Support\ProviderFailureHandler;
 use Aws\Ses\SesClient;
@@ -29,6 +30,10 @@ final class SesProvider extends AbstractProvider implements TransactionalProvide
         }
 
         $message = $this->normalizer()->normalize($message, $this->config);
+
+        if ($message->attachments !== [] && $message->isTemplateSend()) {
+            throw UnsupportedMailbridgeFeature::make($this->name, 'transactional.templates_with_attachments');
+        }
 
         try {
             $response = $message->attachments !== []

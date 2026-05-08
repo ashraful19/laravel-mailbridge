@@ -110,10 +110,6 @@ final class MailerliteProvider extends AbstractProvider implements MarketingProv
 
     public function subscribe(string $list, Subscriber $subscriber): MarketingResult
     {
-        if ($this->client === null && ! class_exists(MailerLite::class)) {
-            throw $this->missingSdk();
-        }
-
         try {
             $response = $this->mailerliteClient()->subscribers->create($this->payload($subscriber));
             $subscriberId = (string) ($response['data']['id'] ?? $subscriber->email);
@@ -139,7 +135,15 @@ final class MailerliteProvider extends AbstractProvider implements MarketingProv
 
     private function mailerliteClient(): mixed
     {
-        return $this->client ?? new MailerLite(['api_key' => $this->requireConfig('api_key')]);
+        if ($this->client !== null) {
+            return $this->client;
+        }
+
+        if (! class_exists(MailerLite::class)) {
+            throw $this->missingSdk();
+        }
+
+        return new MailerLite(['api_key' => $this->requireConfig('api_key')]);
     }
 
     public function campaignPayload(Campaign $campaign): array
