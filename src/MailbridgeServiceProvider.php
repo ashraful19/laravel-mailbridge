@@ -7,6 +7,7 @@ use Ashraful19\LaravelMailbridge\Commands\InstallProviderCommand;
 use Ashraful19\LaravelMailbridge\Commands\ListProvidersCommand;
 use Ashraful19\LaravelMailbridge\Commands\RemoveProviderCommand;
 use Ashraful19\LaravelMailbridge\Commands\TestCommand;
+use Ashraful19\LaravelMailbridge\Commands\VerifyCommand;
 use Ashraful19\LaravelMailbridge\Contracts\MarketingEmailSender;
 use Ashraful19\LaravelMailbridge\Contracts\TransactionalEmailSender;
 use Illuminate\Support\ServiceProvider;
@@ -36,6 +37,7 @@ class MailbridgeServiceProvider extends ServiceProvider
                 ListProvidersCommand::class,
                 RemoveProviderCommand::class,
                 TestCommand::class,
+                VerifyCommand::class,
             ]);
         }
     }

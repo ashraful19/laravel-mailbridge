@@ -54,8 +54,11 @@ final class MailjetProvider extends AbstractProvider implements TransactionalPro
         try {
             $listId = $this->numericId($list, 'Mailjet list id');
             $response = $this->mailjetClient()->post(Resources::$Contact, ['body' => ['Email' => $subscriber->email, 'Name' => $subscriber->name]]);
-            $this->ensureSuccess($response, 'marketing.subscribe.contact');
-            $contactId = $response->getData()[0]['ID'] ?? $subscriber->email;
+            if (! $response->success() && (int) $response->getStatus() !== 400) {
+                $this->ensureSuccess($response, 'marketing.subscribe.contact');
+            }
+
+            $contactId = $response->getData()[0]['ID'] ?? $this->contactId($subscriber->email);
 
             $response = $this->mailjetClient()->post(Resources::$ContactManagecontactslists, [
                 'id' => $contactId,

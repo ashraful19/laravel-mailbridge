@@ -41,6 +41,7 @@ export default {
                 items: [
                     { text: 'Exception Handling', link: '/guide/exceptions' },
                     { text: 'Testing', link: '/guide/testing' },
+                    { text: 'Provider Verification', link: '/guide/verify' },
                     { text: 'Security', link: '/guide/security' },
                     { text: 'Troubleshooting', link: '/guide/troubleshooting' },
                 ],

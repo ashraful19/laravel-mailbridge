@@ -224,12 +224,24 @@
 }
 
 .VPNavBarSearch .DocSearch-Button {
-    min-width: 160px;
+    min-width: 200px;
+    justify-content: space-between;
+}
+
+.VPNavBarSearch .DocSearch-Button .DocSearch-Search-Icon {
+    order: 2;
+    margin-left: auto;
+}
+
+.VPNavBarSearch .DocSearch-Button .DocSearch-Button-Placeholder {
+    order: 1;
+    margin-right: auto;
+    padding-left: 0;
 }
 
 @media (min-width: 960px) {
     .VPNavBarSearch .DocSearch-Button {
-        min-width: 220px;
+        min-width: 280px;
     }
 }
 

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Mailbridge provider verification script
+# Runs mailbridge:verify through Orchestra Testbench (no Laravel app required)
+#
+# Usage:
+#   bin/verify --provider=brevo --email=test@example.com --cleanup
+#   bin/verify --auto --email=test@example.com
+#
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "${SCRIPT_DIR}/../vendor/bin/testbench" mailbridge:verify "$@"

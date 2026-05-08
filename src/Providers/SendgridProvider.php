@@ -88,7 +88,7 @@ final class SendgridProvider extends AbstractProvider implements TransactionalPr
     public function getSubscriber(string $email): ?SubscriberRecord
     {
         try {
-            $response = $this->sendgridApiClient()->contactdb()->recipients()->search()->get(null, ['email' => $email]);
+            $response = $this->sendgridApiClient()->contactdb()->recipients()->search()->post(['email' => $email]);
             $this->ensureSuccess($response, 'marketing.subscriber.lookup');
             $recipient = $this->responseData($response)['recipients'][0] ?? null;
 

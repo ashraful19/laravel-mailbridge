@@ -54,8 +54,10 @@ final class ResendProvider extends AbstractProvider implements TransactionalProv
         ];
 
         if ($message->isTemplateSend()) {
-            $payload['template'] = $message->templateId;
-            $payload['data'] = $message->data;
+            $payload['template'] = array_filter([
+                'id' => $message->templateId,
+                'variables' => $message->data !== [] ? $message->data : null,
+            ], fn ($value) => $value !== null);
         }
 
         if ($message->attachments !== []) {

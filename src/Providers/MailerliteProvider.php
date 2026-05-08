@@ -150,15 +150,17 @@ final class MailerliteProvider extends AbstractProvider implements MarketingProv
     {
         $from = $this->campaignFrom($campaign->fromEmail, $campaign->fromName);
 
+        $email = array_filter([
+            'subject' => $campaign->subject,
+            'from' => $from['email'],
+            'from_name' => $from['name'],
+            'content' => $campaign->html,
+        ], fn ($value) => $value !== null && $value !== '');
+
         return array_filter([
             'name' => $campaign->name,
             'type' => $campaign->options['type'] ?? 'regular',
-            'emails' => [[
-                'subject' => $campaign->subject,
-                'from' => $from['email'],
-                'from_name' => $from['name'],
-                'content' => $campaign->html,
-            ]],
+            'emails' => [$email],
             'groups' => array_values($campaign->lists),
             ...$campaign->options,
         ], fn ($value) => $value !== null && $value !== []);
