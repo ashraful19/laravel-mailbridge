@@ -78,7 +78,7 @@ final class MailersendProvider extends AbstractProvider implements Transactional
                 $message->to,
             ));
         } else {
-            $params->setSubject((string) $message->subject)
+            $params->setSubject((string) ($message->subject ?? ''))
                 ->setHtml($message->html)
                 ->setText($message->text);
         }

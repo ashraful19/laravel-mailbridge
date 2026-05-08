@@ -18,6 +18,7 @@ final class TransactionalMailTest extends TestCase
         Mailbridge::fake();
 
         Mailbridge::transactional()
+            ->from('sender@example.com', 'Sender')
             ->to('a@example.com')
             ->subject('Hello')
             ->text('Hello')
@@ -86,6 +87,7 @@ final class TransactionalMailTest extends TestCase
         config()->set('mailbridge.templates.welcome.array', 'array-welcome');
 
         Mailbridge::transactional()
+            ->from('sender@example.com')
             ->template('welcome')
             ->to('a@example.com')
             ->data(['name' => 'Ash', 'button' => 'Start'])
@@ -106,6 +108,7 @@ final class TransactionalMailTest extends TestCase
         Mailbridge::fake();
 
         Mailbridge::transactional()
+            ->from('sender@example.com')
             ->templateId('direct-id')
             ->to('a@example.com')
             ->data(['name' => 'Ash'])
@@ -120,6 +123,7 @@ final class TransactionalMailTest extends TestCase
         Mailbridge::fake();
 
         Mailbridge::transactional()
+            ->from('sender@example.com')
             ->to('a@example.com')
             ->subject('Report')
             ->text('Attached')
@@ -138,6 +142,7 @@ final class TransactionalMailTest extends TestCase
         Mailbridge::fake();
 
         Mailbridge::transactional()
+            ->from('sender@example.com')
             ->templateId('direct-id')
             ->to('a@example.com')
             ->data(['name' => 'Ash'])

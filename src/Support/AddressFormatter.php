@@ -30,6 +30,12 @@ final class AddressFormatter
             return $address->email;
         }
 
-        return sprintf('%s <%s>', str_replace('"', '', $address->name), $address->email);
+        $name = $address->name;
+
+        if (preg_match('/[()<>\[\]:;@\\\\,."]/u', $name)) {
+            $name = '"' . str_replace(['\\', '"'], ['\\\\', '\\"'], $name) . '"';
+        }
+
+        return sprintf('%s <%s>', $name, $address->email);
     }
 }

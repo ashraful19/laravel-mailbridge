@@ -597,6 +597,7 @@ final class FakeSendgridEndpoint
 
         return match ([$method, $path]) {
             ['POST', '/contactdb/recipients'] => new FakeSendgridResponse(['persisted_recipients' => ['recipient_123']]),
+            ['POST', '/contactdb/recipients/search'] => new FakeSendgridResponse(['recipients' => [['id' => 'recipient_123', 'email' => 'a@example.com']]]),
             ['GET', '/contactdb/recipients/search'] => new FakeSendgridResponse(['recipients' => [['id' => 'recipient_123', 'email' => 'a@example.com']]]),
             ['POST', '/campaigns'] => new FakeSendgridResponse(['id' => 'sg_campaign_123']),
             default => new FakeSendgridResponse([]),

@@ -65,7 +65,10 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
 
         $payload = [
             'email' => $subscriber->email,
-            'attributes' => array_filter(array_replace($subscriber->fields, ['FIRSTNAME' => $subscriber->name]), fn ($value) => $value !== null),
+            'attributes' => array_filter(array_merge(
+                $subscriber->name !== null ? ['FIRSTNAME' => $subscriber->name] : [],
+                $subscriber->fields,
+            ), fn ($value) => $value !== null),
             'listIds' => [$listId],
             'updateEnabled' => true,
         ];

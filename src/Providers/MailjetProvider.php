@@ -54,8 +54,11 @@ final class MailjetProvider extends AbstractProvider implements TransactionalPro
         try {
             $listId = $this->numericId($list, 'Mailjet list id');
             $response = $this->mailjetClient()->post(Resources::$Contact, ['body' => ['Email' => $subscriber->email, 'Name' => $subscriber->name]]);
-            $this->ensureSuccess($response, 'marketing.subscribe.contact');
-            $contactId = $response->getData()[0]['ID'] ?? $subscriber->email;
+            if (! $response->success() && (int) $response->getStatus() !== 400) {
+                $this->ensureSuccess($response, 'marketing.subscribe.contact');
+            }
+
+            $contactId = $response->getData()[0]['ID'] ?? $this->contactId($subscriber->email);
 
             $response = $this->mailjetClient()->post(Resources::$ContactManagecontactslists, [
                 'id' => $contactId,
@@ -262,7 +265,7 @@ final class MailjetProvider extends AbstractProvider implements TransactionalPro
         $status = (int) $response->getStatus();
         $context = ['provider' => $this->name, 'operation' => $operation, 'status' => $status];
 
-        if ($status === 408 || $status === 409 || $status === 425 || $status === 429 || $status >= 500) {
+        if (ProviderFailureHandler::isTransientStatus($status)) {
             throw new ProviderTransientException("Provider [{$this->name}] failed transiently during [{$operation}].", $context);
         }
 

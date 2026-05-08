@@ -225,6 +225,12 @@ Run health checks anytime:
 php artisan mailbridge:doctor
 ```
 
+Smoke-test real provider APIs before releasing:
+
+```bash
+php artisan mailbridge:verify --provider=brevo --email=test@example.com --cleanup
+```
+
 ## Features
 
 Transactional email:

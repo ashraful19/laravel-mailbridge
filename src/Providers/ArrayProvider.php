@@ -21,6 +21,7 @@ final class ArrayProvider extends AbstractProvider implements TransactionalProvi
 
     public function send(TransactionalMessage $message): SendResult
     {
+        $message = $this->normalizer()->normalize($message, $this->config);
         $id = $this->messageId('array');
         $this->transactional[] = ['id' => $id, 'message' => clone $message];
 

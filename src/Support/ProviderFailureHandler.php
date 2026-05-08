@@ -39,6 +39,11 @@ final class ProviderFailureHandler
         );
     }
 
+    public static function isTransientStatus(int $status): bool
+    {
+        return $status === 408 || $status === 425 || $status === 429 || $status >= 500;
+    }
+
     private static function statusCode(Throwable $exception): ?int
     {
         if (method_exists($exception, 'getStatusCode')) {
@@ -64,7 +69,7 @@ final class ProviderFailureHandler
 
     private static function isTransient(Throwable $exception, ?int $status): bool
     {
-        if ($status !== null && ($status === 408 || $status === 409 || $status === 425 || $status === 429 || $status >= 500)) {
+        if ($status !== null && self::isTransientStatus($status)) {
             return true;
         }
 
