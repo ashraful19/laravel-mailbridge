@@ -1,6 +1,6 @@
 # Marketing
 
-Marketing operations are for subscriber lists, groups, campaign sends, and contact lifecycle actions. MailBridge keeps the method names stable while SendGrid, Brevo, Mailchimp, Kit, MailerLite, and Mailjet use their own SDKs internally.
+Marketing operations are for subscriber lists, groups, campaign sends, and contact lifecycle actions. MailBridge keeps the method names stable while SendGrid, Brevo, Mailchimp, Kit, MailerLite, Mailjet, and AutoSend use their own SDKs internally.
 
 ## Subscribe
 

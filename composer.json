@@ -24,7 +24,8 @@
         "kit",
         "convertkit",
         "mailgun",
-        "mailjet"
+        "mailjet",
+        "autosend"
     ],
     "require": {
         "php": "^8.2",
@@ -64,7 +65,8 @@
         "mailerlite/mailerlite-php": "Install with `php artisan mailbridge:install mailerlite` for MailerLite support.",
         "convertkit/convertkitapi": "Install with `php artisan mailbridge:install kit` for Kit support.",
         "mailgun/mailgun-php": "Install with `php artisan mailbridge:install mailgun` for Mailgun support.",
-        "mailjet/mailjet-apiv3-php": "Install with `php artisan mailbridge:install mailjet` for Mailjet support."
+        "mailjet/mailjet-apiv3-php": "Install with `php artisan mailbridge:install mailjet` for Mailjet support.",
+        "autosend/autosend-php": "AutoSend provider uses the native REST API — no external SDK required."
     },
     "autoload": {
         "psr-4": {

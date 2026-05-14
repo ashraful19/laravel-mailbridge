@@ -13,6 +13,7 @@ use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeException;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
 use Ashraful19\LaravelMailbridge\Exceptions\ProviderTransientException;
 use Ashraful19\LaravelMailbridge\MailbridgeManager;
+use Ashraful19\LaravelMailbridge\Providers\AutosendProvider;
 use Ashraful19\LaravelMailbridge\Providers\BrevoProvider;
 use Ashraful19\LaravelMailbridge\Providers\KitProvider;
 use Ashraful19\LaravelMailbridge\Providers\MailerliteProvider;
@@ -477,6 +478,115 @@ final class ProviderAdapterTest extends TestCase
         $this->assertSame('Global Sender', $globalOnly['Sender']);
         $this->assertSame('explicit@example.com', $explicit['SenderEmail']);
         $this->assertSame('Explicit Sender', $explicit['Sender']);
+    }
+
+    public function test_autosend_maps_raw_payload(): void
+    {
+        $payload = (new AutosendProvider('autosend', ['api_key' => 'key'], $this->app))->payload($this->message());
+
+        $this->assertSame(['email' => 'sender@example.com', 'name' => 'Sender'], $payload['from']);
+        $this->assertSame(['email' => 'a@example.com', 'name' => 'A'], $payload['to']);
+        $this->assertSame('Hello', $payload['subject']);
+        $this->assertSame('<p>Hello</p>', $payload['html']);
+        $this->assertSame('Hello', $payload['text']);
+        $this->assertSame('welcome', $payload['headers']['X-Mailbridge-Tags']);
+        $this->assertSame('signup', $payload['headers']['campaign']);
+    }
+
+    public function test_autosend_maps_template_payload(): void
+    {
+        $message = $this->message();
+        $message->templateId = 'A-welcome123';
+        $message->data = ['name' => 'Ash'];
+
+        $payload = (new AutosendProvider('autosend', ['api_key' => 'key'], $this->app))->payload($message);
+
+        $this->assertSame('A-welcome123', $payload['templateId']);
+        $this->assertSame(['name' => 'Ash'], $payload['dynamicData']);
+        $this->assertArrayNotHasKey('subject', $payload);
+        $this->assertArrayNotHasKey('html', $payload);
+    }
+
+    public function test_autosend_maps_campaign_payload(): void
+    {
+        $payload = (new AutosendProvider('autosend', [
+            'api_key' => 'key',
+            'from' => ['address' => 'provider@example.com', 'name' => 'Provider'],
+        ], $this->app))->campaignPayload(
+            Campaign::make('Launch')
+                ->subject('Hello World')
+                ->html('<p>Hey</p>')
+                ->list('list_abc123')
+                ->option('sendNow', true)
+        );
+
+        $this->assertSame('Launch', $payload['name']);
+        $this->assertSame('Hello World', $payload['subject']);
+        $this->assertSame('<p>Hey</p>', $payload['htmlTemplate']);
+        $this->assertSame(['list_abc123'], $payload['toLists']);
+        $this->assertTrue($payload['publish']);
+        $this->assertTrue($payload['sendNow']);
+        $this->assertSame('provider@example.com', $payload['from']['email']);
+    }
+
+    public function test_autosend_maps_attachments(): void
+    {
+        $message = $this->message();
+        $message->attachments[] = ['content' => 'invoice-bytes', 'name' => 'invoice.txt', 'mime' => 'text/plain'];
+
+        $payload = (new AutosendProvider('autosend', ['api_key' => 'key'], $this->app))->payload($message);
+
+        $this->assertCount(1, $payload['attachments']);
+        $this->assertSame('invoice.txt', $payload['attachments'][0]['fileName']);
+        $this->assertSame(base64_encode('invoice-bytes'), $payload['attachments'][0]['content']);
+        $this->assertSame('text/plain', $payload['attachments'][0]['contentType']);
+    }
+
+    public function test_autosend_cc_and_bcc_are_mapped(): void
+    {
+        $message = $this->message();
+        $message->cc[] = Address::make('cc@example.com', 'CC User');
+        $message->bcc[] = Address::make('bcc@example.com');
+
+        $payload = (new AutosendProvider('autosend', ['api_key' => 'key'], $this->app))->payload($message);
+
+        $this->assertCount(1, $payload['cc']);
+        $this->assertSame('cc@example.com', $payload['cc'][0]['email']);
+        $this->assertSame('CC User', $payload['cc'][0]['name']);
+        $this->assertCount(1, $payload['bcc']);
+        $this->assertSame('bcc@example.com', $payload['bcc'][0]['email']);
+    }
+
+    public function test_autosend_maps_subscriber_payload_and_splits_name(): void
+    {
+        $payload = (new AutosendProvider('autosend', ['api_key' => 'key'], $this->app))->subscriberPayload(
+            Subscriber::make('a@example.com')->name('Ash Islam')->field('company', 'Converlo')
+        );
+
+        $this->assertSame('a@example.com', $payload['email']);
+        $this->assertSame('Ash', $payload['firstName']);
+        $this->assertSame('Islam', $payload['lastName']);
+        $this->assertSame('Converlo', $payload['customFields']['company']);
+    }
+
+    public function test_autosend_subscriber_payload_single_name(): void
+    {
+        $payload = (new AutosendProvider('autosend', ['api_key' => 'key'], $this->app))->subscriberPayload(
+            Subscriber::make('a@example.com')->name('Ash')
+        );
+
+        $this->assertSame('Ash', $payload['firstName']);
+        $this->assertArrayNotHasKey('lastName', $payload);
+    }
+
+    public function test_autosend_subscriber_payload_no_name(): void
+    {
+        $payload = (new AutosendProvider('autosend', ['api_key' => 'key'], $this->app))->subscriberPayload(
+            Subscriber::make('a@example.com')
+        );
+
+        $this->assertArrayNotHasKey('firstName', $payload);
+        $this->assertArrayNotHasKey('lastName', $payload);
     }
 
     private function message(): TransactionalMessage

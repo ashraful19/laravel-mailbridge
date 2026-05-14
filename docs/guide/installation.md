@@ -24,7 +24,7 @@ php artisan mailbridge:install <provider>
 ```
 
 Current provider values:
-`sendgrid`, `ses`, `brevo`, `mailersend`, `resend`, `postmark`, `mailchimp`, `kit`, `mailerlite`, `mailgun`, `mailjet`
+`sendgrid`, `ses`, `brevo`, `mailersend`, `resend`, `postmark`, `mailchimp`, `kit`, `mailerlite`, `mailgun`, `mailjet`, `autosend`
 
 See [Provider Install](/guide/provider-install) for commands and exact SDK pins.
 See [Provider Guides](/guide/providers) for provider-specific setup, mappings, and caveats.
@@ -69,6 +69,7 @@ MAILGUN_API_KEY=
 MAILGUN_DOMAIN=
 MAILJET_API_KEY=
 MAILJET_SECRET_KEY=
+AUTOSEND_API_KEY=
 ```
 
 You only need env vars for providers you actually use.
@@ -104,6 +105,7 @@ Template and list identifiers are provider-specific. Define alias mappings in `c
         'mailchimp' => 'welcome-template',
         'mailgun' => 'welcome',
         'mailjet' => 123456,
+        'autosend' => 'A-welcome123',
     ],
 ],
 
@@ -115,6 +117,7 @@ Template and list identifiers are provider-specific. Define alias mappings in `c
         'kit' => 'tag:123',
         'mailerlite' => 'group-id',
         'mailjet' => 789,
+        'autosend' => 'list_abc123',
     ],
 ],
 ```

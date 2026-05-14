@@ -102,6 +102,13 @@ final class ProviderCatalog
                 'install' => 'composer require mailjet/mailjet-apiv3-php:1.6.6',
                 'capabilities' => ['transactional.raw', 'transactional.templates', 'transactional.metadata', 'marketing.contacts', 'marketing.lists', 'marketing.subscribers.lookup', 'marketing.subscribers.delete', 'marketing.campaigns'],
             ],
+            'autosend' => [
+                'driver' => 'autosend',
+                'sdk' => null,
+                'version' => null,
+                'install' => null,
+                'capabilities' => ['transactional.raw', 'transactional.templates', 'transactional.tags', 'transactional.metadata', 'marketing.contacts', 'marketing.lists', 'marketing.subscribers.lookup', 'marketing.subscribers.delete', 'marketing.campaigns', 'webhooks.transactional', 'webhooks.marketing'],
+            ],
         ];
     }
 }
