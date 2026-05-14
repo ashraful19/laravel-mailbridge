@@ -21,6 +21,7 @@ use Ashraful19\LaravelMailbridge\Exceptions\UnknownDriverException;
 use Ashraful19\LaravelMailbridge\Exceptions\UnknownProviderException;
 use Ashraful19\LaravelMailbridge\Exceptions\UnsupportedMailbridgeFeature;
 use Ashraful19\LaravelMailbridge\Providers\ArrayProvider;
+use Ashraful19\LaravelMailbridge\Providers\AutosendProvider;
 use Ashraful19\LaravelMailbridge\Providers\BrevoProvider;
 use Ashraful19\LaravelMailbridge\Providers\KitProvider;
 use Ashraful19\LaravelMailbridge\Providers\LogProvider;
@@ -279,6 +280,7 @@ final class MailbridgeManager implements TransactionalEmailSender, MarketingEmai
             'mailgun' => new MailgunProvider($provider, $config, $this->app),
             'mailjet' => new MailjetProvider($provider, $config, $this->app),
             'mailerlite' => new MailerliteProvider($provider, $config, $this->app),
+            'autosend' => new AutosendProvider($provider, $config, $this->app),
             default => throw UnknownDriverException::make((string) $config['driver']),
         };
     }

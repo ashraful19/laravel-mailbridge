@@ -104,3 +104,10 @@ Campaign::make('Launch')->list('signup')->option('sender_id', 123456);
 - Env: `MAILJET_API_KEY`, `MAILJET_SECRET_KEY`
 - Mapping: marketing list IDs and campaign `ContactsListID` are numeric.
 - Caveat: invalid non-numeric list IDs throw `MailbridgeValidationException`.
+
+## AutoSend
+
+- Lanes: transactional + marketing
+- Env: `AUTOSEND_API_KEY`
+- Mapping: template IDs map directly to AutoSend template IDs (e.g. `A-welcome123`). Marketing list IDs are string-based (e.g. `list_abc123`).
+- No external SDK required — uses the AutoSend REST API directly via Laravel's HTTP client.

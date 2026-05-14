@@ -17,6 +17,7 @@ For provider-specific behavior, mappings, and caveats, see [Provider Guides](/gu
 | MailerLite | `php artisan mailbridge:install mailerlite` |
 | Mailgun | `php artisan mailbridge:install mailgun` |
 | Mailjet | `php artisan mailbridge:install mailjet` |
+| AutoSend | No SDK required — uses REST API directly |
 
 Run:
 
@@ -53,3 +54,4 @@ Exact SDK pins used by the installer:
 | MailerLite | `mailerlite/mailerlite-php:1.0.5` |
 | Mailgun | `mailgun/mailgun-php:4.4.0` |
 | Mailjet | `mailjet/mailjet-apiv3-php:1.6.6` |
+| AutoSend | No external SDK — uses native REST API |

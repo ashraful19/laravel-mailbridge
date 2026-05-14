@@ -9,7 +9,7 @@
 
 Provider-neutral transactional and marketing email for Laravel 12+.
 
-MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Your app uses the same MailBridge methods while SendGrid, Amazon SES, Brevo, MailerSend, Resend, Postmark, Mailchimp, Kit, MailerLite, Mailgun, and Mailjet each run through their official SDKs internally.
+MailBridge keeps your application code stable while providers, SDKs, template ids, and marketing APIs vary behind adapters. Your app uses the same MailBridge methods while SendGrid, Amazon SES, Brevo, MailerSend, Resend, Postmark, Mailchimp, Kit, MailerLite, Mailgun, Mailjet, and AutoSend each run through their official SDKs internally.
 
 ## Documentation
 
@@ -62,6 +62,7 @@ MAILCHIMP_TRANSACTIONAL_API_KEY=
 KIT_API_KEY=
 MAILJET_API_KEY=
 MAILJET_SECRET_KEY=
+AUTOSEND_API_KEY=
 ```
 
 Optional: set provider-level sender defaults in `config/mailbridge.php` (for providers that should use a different sender than global `MAIL_FROM_*`):
@@ -218,6 +219,7 @@ Provider SDKs are installed only when selected, and each install command uses th
 | MailerLite | Marketing | subscribers, groups, fields, campaigns | `php artisan mailbridge:install mailerlite` |
 | Mailgun | Transactional | raw send, hosted templates, tags, variables, metadata | `php artisan mailbridge:install mailgun` |
 | Mailjet | Transactional + marketing | raw send, hosted templates, subscribers, lists, campaigns | `php artisan mailbridge:install mailjet` |
+| AutoSend | Transactional + marketing | raw send, hosted templates, tags, metadata, contacts, lists, campaigns | No SDK required — uses REST API directly |
 
 Run health checks anytime:
 

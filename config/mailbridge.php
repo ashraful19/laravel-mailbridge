@@ -2,7 +2,7 @@
 
 return [
     // Default provider keys used when no provider is passed at runtime.
-    // Possible values: log, array, sendgrid, ses, brevo, mailersend, resend, postmark, mailerlite, mailchimp, kit, mailgun, mailjet.
+    // Possible values: log, array, sendgrid, ses, brevo, mailersend, resend, postmark, mailerlite, mailchimp, kit, mailgun, mailjet, autosend.
     'default' => [
         // Transactional lane default provider.
         'transactional' => env('MAILBRIDGE_TRANSACTIONAL', 'log'),
@@ -35,13 +35,13 @@ return [
     // Rule: mapping values must be present and non-empty for the selected provider.
     // Value type depends on provider: string or int.
     'templates' => [
-        // 'welcome' => ['sendgrid' => 'd-template', 'ses' => 'welcome', 'brevo' => 123, 'postmark' => 'welcome-alias', 'mailchimp' => 'welcome-template', 'mailgun' => 'welcome', 'mailjet' => 123456],
+        // 'welcome' => ['sendgrid' => 'd-template', 'ses' => 'welcome', 'brevo' => 123, 'postmark' => 'welcome-alias', 'mailchimp' => 'welcome-template', 'mailgun' => 'welcome', 'mailjet' => 123456, 'autosend' => 'A-welcome123'],
     ],
 
     // Marketing list/group alias map used by list('alias').
     // Value format is provider-specific (numeric ids, audience ids, or typed values like kit tag:123).
     'lists' => [
-        // 'signup' => ['brevo' => 456, 'mailchimp' => 'audience-id', 'kit' => 'tag:123', 'mailerlite' => 'group-id', 'mailjet' => 789],
+        // 'signup' => ['brevo' => 456, 'mailchimp' => 'audience-id', 'kit' => 'tag:123', 'mailerlite' => 'group-id', 'mailjet' => 789, 'autosend' => 'list_abc123'],
     ],
 
     // Runtime provider credentials/options.
@@ -118,6 +118,11 @@ return [
             'api_key' => env('MAILJET_API_KEY'),
             // ENV: MAILJET_SECRET_KEY
             'secret_key' => env('MAILJET_SECRET_KEY'),
+        ],
+
+        'autosend' => [
+            // ENV: AUTOSEND_API_KEY
+            'api_key' => env('AUTOSEND_API_KEY'),
         ],
     ],
 ];

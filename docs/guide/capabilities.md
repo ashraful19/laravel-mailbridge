@@ -34,6 +34,7 @@ Use this page to decide which provider should handle each lane and which parts o
 | MailerLite | No | No | No | Subscribers + groups | Create/schedule/get/delete |
 | Mailgun | Yes | Yes | Yes | No | No |
 | Mailjet | Yes | Yes | Yes | Subscribers + lists | Create/send/schedule/get/delete |
+| AutoSend | Yes | Yes | Yes | Contacts + lists | Create/send/schedule/get/delete |
 | Log | Yes | Yes | Yes | Yes | Yes |
 | Array | Yes | Yes | Yes | Yes | Yes |
 
