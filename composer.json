@@ -38,7 +38,7 @@
     "require-dev": {
         "aws/aws-sdk-php": "3.379.0",
         "convertkit/convertkitapi": "2.4",
-        "getbrevo/brevo-php": "2.0.14",
+        "getbrevo/brevo-php": "5.0.1",
         "mailchimp/marketing": "3.0.80",
         "mailchimp/transactional": "1.4.1",
         "mailerlite/mailerlite-php": "1.0.5",

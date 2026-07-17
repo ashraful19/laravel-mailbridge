@@ -13,7 +13,7 @@ final class ProviderMetadataTest extends TestCase
 
         $this->assertSame('composer require sendgrid/sendgrid:8.1.11', $providers['sendgrid']['install']);
         $this->assertSame('composer require aws/aws-sdk-php:3.379.0', $providers['ses']['install']);
-        $this->assertSame('composer require getbrevo/brevo-php:2.0.14', $providers['brevo']['install']);
+        $this->assertSame('composer require getbrevo/brevo-php:5.0.1', $providers['brevo']['install']);
         $this->assertSame('composer require mailersend/laravel-driver:3.1.0', $providers['mailersend']['install']);
         $this->assertSame('composer require resend/resend-php:1.1.0', $providers['resend']['install']);
         $this->assertSame('composer require wildbit/postmark-php:7.0.0', $providers['postmark']['install']);

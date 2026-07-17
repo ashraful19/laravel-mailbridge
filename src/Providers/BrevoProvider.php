@@ -13,20 +13,18 @@ use Ashraful19\LaravelMailbridge\Data\TransactionalMessage;
 use Ashraful19\LaravelMailbridge\Exceptions\MailbridgeValidationException;
 use Ashraful19\LaravelMailbridge\Support\AddressFormatter;
 use Ashraful19\LaravelMailbridge\Support\ProviderFailureHandler;
-use Brevo\Client\Api\ContactsApi;
-use Brevo\Client\Api\EmailCampaignsApi;
-use Brevo\Client\Api\TransactionalEmailsApi;
-use Brevo\Client\Configuration;
-use Brevo\Client\Model\AddContactToList;
-use Brevo\Client\Model\CreateContact;
-use Brevo\Client\Model\CreateEmailCampaign;
-use Brevo\Client\Model\CreateEmailCampaignRecipients;
-use Brevo\Client\Model\SendSmtpEmail;
-use Brevo\Client\Model\RemoveContactFromList;
+use Brevo\Brevo;
+use Brevo\Contacts\Requests\CreateContactRequest;
+use Brevo\Contacts\Requests\RemoveContactFromListRequest;
+use Brevo\EmailCampaigns\Requests\CreateEmailCampaignRequest;
+use Brevo\EmailCampaigns\Requests\UpdateEmailCampaignRequest;
+use Brevo\TransactionalEmails\Requests\SendTransacEmailRequest;
 use Throwable;
 
 final class BrevoProvider extends AbstractProvider implements TransactionalProvider, MarketingProvider
 {
+    private ?Brevo $cachedBrevo = null;
+
     public function __construct(
         string $name,
         array $config,
@@ -40,7 +38,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
 
     public function send(TransactionalMessage $message): SendResult
     {
-        if ($this->transactionalApi === null && ! class_exists(TransactionalEmailsApi::class)) {
+        if ($this->transactionalApi === null && ! class_exists(Brevo::class)) {
             throw $this->missingSdk();
         }
 
@@ -48,9 +46,9 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
         $payload = $this->transactionalPayload($message);
 
         try {
-            $response = $this->transactionalClient()->sendTransacEmail(new SendSmtpEmail($payload));
+            $response = $this->transactionalClient()->sendTransacEmail(new SendTransacEmailRequest($payload));
 
-            return new SendResult($this->name, $response->getMessageId(), ['message_ids' => $response->getMessageIds()]);
+            return new SendResult($this->name, $response->messageId, ['message_ids' => $response->messageIds]);
         } catch (Throwable $exception) {
             ProviderFailureHandler::throw($this->name, 'transactional.send', $exception);
         }
@@ -58,7 +56,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
 
     public function subscribe(string $list, Subscriber $subscriber): MarketingResult
     {
-        if ($this->contactsApi === null && ! class_exists(ContactsApi::class)) {
+        if ($this->contactsApi === null && ! class_exists(Brevo::class)) {
             throw $this->missingSdk();
         }
         $listId = $this->numericId($list, 'Brevo list id');
@@ -74,7 +72,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
         ];
 
         try {
-            $this->contactsClient()->createContact(new CreateContact($payload));
+            $this->contactsClient()->createContact(new CreateContactRequest($payload));
 
             return new MarketingResult($this->name, 'subscribe', ['list' => $list]);
         } catch (Throwable $exception) {
@@ -85,7 +83,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
     public function unsubscribe(string $list, string $email): MarketingResult
     {
         try {
-            $this->contactsClient()->removeContactFromList(new RemoveContactFromList(['emails' => [$email]]), $this->numericId($list, 'Brevo list id'));
+            $this->contactsClient()->removeContactFromList($this->numericId($list, 'Brevo list id'), new RemoveContactFromListRequest(['emails' => [$email]]));
 
             return new MarketingResult($this->name, 'unsubscribe', ['list' => $list]);
         } catch (Throwable $exception) {
@@ -118,9 +116,9 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
     public function createCampaign(Campaign $campaign): MarketingResult
     {
         try {
-            $response = $this->campaignsClient()->createEmailCampaign(new CreateEmailCampaign($this->campaignPayload($campaign)));
+            $response = $this->campaignsClient()->createEmailCampaign(new CreateEmailCampaignRequest($this->campaignPayload($campaign)));
 
-            return new MarketingResult($this->name, 'campaign_create', ['campaign_id' => method_exists($response, 'getId') ? $response->getId() : null]);
+            return new MarketingResult($this->name, 'campaign_create', ['campaign_id' => $response?->id]);
         } catch (Throwable $exception) {
             ProviderFailureHandler::throw($this->name, 'marketing.campaign.create', $exception);
         }
@@ -140,9 +138,9 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
     public function scheduleCampaign(string|int $campaignId, \DateTimeInterface|string $when): MarketingResult
     {
         try {
-            $this->campaignsClient()->updateEmailCampaign(new \Brevo\Client\Model\UpdateEmailCampaign([
+            $this->campaignsClient()->updateEmailCampaign((int) $campaignId, new UpdateEmailCampaignRequest([
                 'scheduledAt' => $when instanceof \DateTimeInterface ? $when->format(DATE_ATOM) : $when,
-            ]), (int) $campaignId);
+            ]));
 
             return new MarketingResult($this->name, 'campaign_schedule', ['campaign_id' => $campaignId]);
         } catch (Throwable $exception) {
@@ -203,19 +201,24 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
         return array_filter($payload, fn ($value) => $value !== null && $value !== []);
     }
 
+    private function brevo(): Brevo
+    {
+        return $this->cachedBrevo ??= new Brevo($this->requireConfig('api_key'));
+    }
+
     private function transactionalClient(): mixed
     {
-        return $this->transactionalApi ?? new TransactionalEmailsApi(null, $this->configuration());
+        return $this->transactionalApi ?? $this->brevo()->transactionalEmails;
     }
 
     private function contactsClient(): mixed
     {
-        return $this->contactsApi ?? new ContactsApi(null, $this->configuration());
+        return $this->contactsApi ?? $this->brevo()->contacts;
     }
 
     private function campaignsClient(): mixed
     {
-        return $this->campaignsApi ?? new EmailCampaignsApi(null, $this->configuration());
+        return $this->campaignsApi ?? $this->brevo()->emailCampaigns;
     }
 
     public function campaignPayload(Campaign $campaign): array
@@ -228,7 +231,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
             'subject' => $campaign->subject,
             'htmlContent' => $campaign->html,
             'sender' => $from,
-            'recipients' => new CreateEmailCampaignRecipients(['listIds' => $listIds]),
+            'recipients' => new \Brevo\EmailCampaigns\Types\CreateEmailCampaignRequestRecipients(['listIds' => $listIds]),
             ...$campaign->options,
         ], fn ($value) => $value !== null && $value !== []);
     }
@@ -240,10 +243,5 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
         }
 
         return (int) $value;
-    }
-
-    private function configuration(): Configuration
-    {
-        return Configuration::getDefaultConfiguration()->setApiKey('api-key', $this->requireConfig('api_key'));
     }
 }
