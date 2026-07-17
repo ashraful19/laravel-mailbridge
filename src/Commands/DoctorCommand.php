@@ -36,7 +36,7 @@ final class DoctorCommand extends Command
                 if ($installed === null) {
                     $failed = true;
                     $this->components->error("{$name}: SDK [{$sdk}] missing. Run: php artisan mailbridge:install {$name}");
-                } elseif (version_compare($installed, $version, '!=')) {
+                } elseif ($installed !== $version) {
                     $failed = true;
                     $this->components->warn("{$name}: SDK [{$sdk}] version [{$installed}] differs from tested [{$version}].");
                 } else {
@@ -100,6 +100,6 @@ final class DoctorCommand extends Command
             return null;
         }
 
-        return \Composer\InstalledVersions::getVersion($package);
+        return \Composer\InstalledVersions::getPrettyVersion($package);
     }
 }
