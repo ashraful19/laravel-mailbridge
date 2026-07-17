@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.5] - 2026-07-17
+
+### Fixed
+
+- **Brevo typed objects for transactional payload.** Brevo SDK 5.x requires typed
+  objects (`SendTransacEmailRequestSender`, `SendTransacEmailRequestToItem`, etc.)
+  instead of plain arrays for transactional email payloads.
+
 ## [2.0.4] - 2026-07-17
 
 ### Fixed
