@@ -45,7 +45,7 @@ Exact SDK pins used by the installer:
 | --- | --- |
 | SendGrid | `sendgrid/sendgrid:8.1.11` |
 | Amazon SES | `aws/aws-sdk-php:3.379.0` |
-| Brevo | `getbrevo/brevo-php:2.0.14` |
+| Brevo | `getbrevo/brevo-php:5.0.1` |
 | MailerSend | `mailersend/laravel-driver:3.1.0` |
 | Resend | `resend/resend-php:1.1.0` |
 | Postmark | `wildbit/postmark-php:7.0.0` |

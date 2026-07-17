@@ -38,8 +38,8 @@ final class ProviderCatalog
             'brevo' => [
                 'driver' => 'brevo',
                 'sdk' => 'getbrevo/brevo-php',
-                'version' => '2.0.14',
-                'install' => 'composer require getbrevo/brevo-php:2.0.14',
+                'version' => '5.0.1',
+                'install' => 'composer require getbrevo/brevo-php:5.0.1',
                 'capabilities' => ['transactional.raw', 'transactional.templates', 'transactional.tags', 'marketing.contacts', 'marketing.lists', 'marketing.subscribers.lookup', 'marketing.subscribers.delete', 'marketing.campaigns', 'webhooks.transactional', 'webhooks.marketing'],
             ],
             'mailersend' => [

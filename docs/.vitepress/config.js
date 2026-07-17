@@ -23,6 +23,7 @@ export default {
                     { text: 'Provider Install', link: '/guide/provider-install' },
                     { text: 'Provider Guides', link: '/guide/providers' },
                     { text: 'Capabilities', link: '/guide/capabilities' },
+                    { text: 'Upgrade Guide', link: '/guide/upgrade' },
                 ],
             },
             {

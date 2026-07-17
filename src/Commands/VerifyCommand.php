@@ -513,7 +513,7 @@ private function guessSdkClass(string $provider, ?string $package = null): strin
         return match ($provider) {
             'sendgrid' => \SendGrid::class,
             'ses' => \Aws\Ses\SesClient::class,
-            'brevo' => \Brevo\Client\Api\TransactionalEmailsApi::class,
+            'brevo' => \Brevo\Brevo::class,
             'mailersend' => \MailerSend\LaravelDriver\MailerSendTransport::class,
             'resend' => \Resend::class,
             'postmark' => \Postmark\PostmarkClient::class,
