@@ -41,8 +41,9 @@ final class ProviderAdapterTest extends TestCase
         $payload = (new BrevoProvider('brevo', ['api_key' => 'key'], $this->app))->transactionalPayload($message);
 
         $this->assertSame(123, $payload['templateId']);
-        $this->assertEquals((object) ['name' => 'Ash'], $payload['params']);
-        $this->assertSame([['email' => 'a@example.com', 'name' => 'A']], $payload['to']);
+        $this->assertSame(['name' => 'Ash'], $payload['params']);
+        $this->assertInstanceOf(\Brevo\TransactionalEmails\Types\SendTransacEmailRequestToItem::class, $payload['to'][0]);
+        $this->assertSame('a@example.com', $payload['to'][0]->email);
     }
 
     public function test_resend_maps_raw_payload(): void

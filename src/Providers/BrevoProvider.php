@@ -19,6 +19,12 @@ use Brevo\Contacts\Requests\RemoveContactFromListRequest;
 use Brevo\EmailCampaigns\Requests\CreateEmailCampaignRequest;
 use Brevo\EmailCampaigns\Requests\UpdateEmailCampaignRequest;
 use Brevo\TransactionalEmails\Requests\SendTransacEmailRequest;
+use Brevo\TransactionalEmails\Types\SendTransacEmailRequestAttachmentItem;
+use Brevo\TransactionalEmails\Types\SendTransacEmailRequestBccItem;
+use Brevo\TransactionalEmails\Types\SendTransacEmailRequestCcItem;
+use Brevo\TransactionalEmails\Types\SendTransacEmailRequestReplyTo;
+use Brevo\TransactionalEmails\Types\SendTransacEmailRequestSender;
+use Brevo\TransactionalEmails\Types\SendTransacEmailRequestToItem;
 use Throwable;
 
 final class BrevoProvider extends AbstractProvider implements TransactionalProvider, MarketingProvider
@@ -173,11 +179,11 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
     public function transactionalPayload(TransactionalMessage $message): array
     {
         $payload = [
-            'sender' => $message->from?->toArray(),
-            'to' => AddressFormatter::arrays($message->to),
-            'cc' => AddressFormatter::arrays($message->cc),
-            'bcc' => AddressFormatter::arrays($message->bcc),
-            'replyTo' => $message->replyTo?->toArray(),
+            'sender' => $message->from !== null ? new SendTransacEmailRequestSender($message->from->toArray()) : null,
+            'to' => array_map(fn (array $addr) => new SendTransacEmailRequestToItem($addr), AddressFormatter::arrays($message->to)),
+            'cc' => array_map(fn (array $addr) => new SendTransacEmailRequestCcItem($addr), AddressFormatter::arrays($message->cc)),
+            'bcc' => array_map(fn (array $addr) => new SendTransacEmailRequestBccItem($addr), AddressFormatter::arrays($message->bcc)),
+            'replyTo' => $message->replyTo !== null ? new SendTransacEmailRequestReplyTo($message->replyTo->toArray()) : null,
             'tags' => $message->tags,
             'headers' => $message->metadata,
         ];
@@ -192,10 +198,10 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
         }
 
         if ($message->attachments !== []) {
-            $payload['attachment'] = array_map(fn (array $attachment): array => [
+            $payload['attachment'] = array_map(fn (array $attachment) => new SendTransacEmailRequestAttachmentItem([
                 'content' => base64_encode((string) $attachment['content']),
                 'name' => $attachment['name'] ?? 'attachment',
-            ], $message->attachments);
+            ]), $message->attachments);
         }
 
         return array_filter($payload, fn ($value) => $value !== null && $value !== []);
