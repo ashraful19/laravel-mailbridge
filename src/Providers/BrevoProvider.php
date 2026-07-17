@@ -184,7 +184,7 @@ final class BrevoProvider extends AbstractProvider implements TransactionalProvi
 
         if ($message->isTemplateSend()) {
             $payload['templateId'] = is_numeric($message->templateId) ? (int) $message->templateId : $message->templateId;
-            $payload['params'] = (object) $message->data;
+            $payload['params'] = $message->data;
         } else {
             $payload['subject'] = $message->subject;
             $payload['htmlContent'] = $message->html;
