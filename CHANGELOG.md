@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.4] - 2026-07-17
+
+### Fixed
+
+- **Brevo template params TypeError.** Removed `(object)` cast on template `params`
+  in `BrevoProvider::transactionalPayload()`. Brevo SDK 5.x expects `params` as
+  `?array`, not `stdClass`.
+
+## [2.0.3] - earlier
+
 ### Changed — breaking
 
 - **Brevo SDK upgraded from `2.0.14` to `5.0.1`.** The `getbrevo/brevo-php` package
