@@ -5,7 +5,6 @@ namespace Ashraful19\LaravelMailbridge\Commands;
 use Ashraful19\LaravelMailbridge\Support\ProviderCatalog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Process;
 
 final class DoctorCommand extends Command
 {
@@ -93,14 +92,14 @@ final class DoctorCommand extends Command
 
     private function installedVersion(string $package): ?string
     {
-        $result = Process::run("composer show {$package} --format=json");
-
-        if (! $result->successful()) {
+        if (! class_exists(\Composer\InstalledVersions::class)) {
             return null;
         }
 
-        $json = json_decode($result->output(), true);
+        if (! \Composer\InstalledVersions::isInstalled($package)) {
+            return null;
+        }
 
-        return is_array($json) ? ($json['version'] ?? null) : null;
+        return \Composer\InstalledVersions::getVersion($package);
     }
 }
