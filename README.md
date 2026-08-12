@@ -1,3 +1,5 @@
+
+
 # Laravel MailBridge
 
 [![Tests](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/ashraful19/laravel-mailbridge/actions/workflows/tests.yml)
@@ -60,6 +62,8 @@ MAILCHIMP_SERVER_PREFIX=us1
 MAILCHIMP_AUDIENCE_ID=
 MAILCHIMP_TRANSACTIONAL_API_KEY=
 KIT_API_KEY=
+MAILGUN_API_KEY=
+MAILGUN_DOMAIN=mg.example.com
 MAILJET_API_KEY=
 MAILJET_SECRET_KEY=
 AUTOSEND_API_KEY=
